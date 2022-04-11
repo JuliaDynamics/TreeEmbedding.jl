@@ -21,6 +21,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 GLM = "1"
 =======
 DelayEmbeddings = "2"
@@ -31,6 +32,9 @@ Distributions = "0.25"
 =======
 DynamicalSystemsBase = "2"
 >>>>>>> 2022-04-11-10-29-21-079-03740549021
+=======
+Distances = "0.10"
+>>>>>>> 2022-04-11-10-29-19-218-01092656499
 
 [extras]
 ChaosTools = "608a59af-f2a3-5ad4-90b4-758bdf3122a7"
