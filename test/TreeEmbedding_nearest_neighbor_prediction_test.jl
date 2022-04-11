@@ -3,7 +3,7 @@ runs = 10
 runs2 = 10
 T_steps = 50
 
-println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
+println("\nTesting TreeEmbedding prediction of Lorenz")
 @time begin
 @testset "TreeEmbedding prediction of Lorenz" begin
 
@@ -86,6 +86,8 @@ println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts3 = best_node.τs
     L_mcdts3 = L(best_node)
+    println("τ_mcdts3: $τ_mcdts3")
+    println("L_mcdts3: $L_mcdts3")
     @test τ_mcdts3 == [0,4]
     @test 0.069 < L_mcdts3 < 0.07
 
@@ -106,6 +108,8 @@ println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts4 = best_node.τs
     L_mcdts4 = L(best_node)
+    println("τ_mcdts4: $τ_mcdts4")
+    println("L_mcdts4: $L_mcdts4")
     @test τ_mcdts4 == [0, 1, 3]
     @test 0.034 < L_mcdts4 < 0.035
 
@@ -221,6 +225,8 @@ println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
+    println("τ_mcdts: $τ_mcdts")
+    println("L_mcdts: $L_mcdts")
     @test τ_mcdts == [0, 2]
     @test 1.026 < L_mcdts < 1.027
 
@@ -239,6 +245,8 @@ println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
+    println("τ_mcdts: $τ_mcdts")
+    println("L_mcdts: $L_mcdts")
     @test τ_mcdts == [0, 26, 7, 21]
     @test 0.09 < L_mcdts < 0.1
 

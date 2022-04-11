@@ -4,7 +4,7 @@ runs = 10
 runs2 = 10
 T_steps = 50
 
-println("\nTesting TreeEmbedding complete tree, Lorenz63 univariate:")
+println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
 @time begin
 @testset "TreeEmbedding L & FNN on Lorenz univariate" begin
 
@@ -65,7 +65,7 @@ println("\nTesting TreeEmbedding complete tree, Lorenz63 univariate:")
 end
 
 
-println("\nTesting TreeEmbedding complete tree, Lorenz63 multivariate:")
+println("\nTesting TreeEmbedding L & FNN on Lorenz multivariate")
 @testset "TreeEmbedding L & FNN on Lorenz multivariate" begin
 
     Random.seed!(1234)

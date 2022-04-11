@@ -1,4 +1,4 @@
-println("\nTesting TreeEmbedding complete tree, coupled Logistic, CCM:")
+println("\nTesting TreeEmbedding CCM on univariate Logistic map data:")
 @time begin
 @testset "TreeEmbedding CCM on univariate Logistic map data" begin
 
@@ -46,9 +46,7 @@ println("\nTesting TreeEmbedding complete tree, coupled Logistic, CCM:")
     @test Lval < -0.95
     @test Lval - .01 < L2 < Lval + .01
     @test length(τ_mcdts) ==  3 == length(τ_mcdts2)
-    @test τ_mcdts[1] == 0 == τ_mcdts2[1]
-    @test τ_mcdts[2] == 2 == τ_mcdts2[2]
-    @test τ_mcdts[3] == 1 == τ_mcdts2[3]
+    @test sort(τ_mcdts) == sort(τ_mcdts2) == [0, 1, 2]
 
     Random.seed!(1234)
     optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test1), TreeEmbedding.Range_function())
