@@ -29,7 +29,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
@@ -40,7 +40,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     error_wheight_insample = 0.5
     error_wheight_oosample = 0.5
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Range_function())
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
@@ -63,7 +63,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts2 = best_node.τs
     L_mcdts2 = L(best_node)
@@ -82,12 +82,11 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    Random.seed!(1234)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts3 = best_node.τs
     L_mcdts3 = L(best_node)
-    println("τ_mcdts3: $τ_mcdts3")
-    println("L_mcdts3: $L_mcdts3")
     @test τ_mcdts3 == [0,4]
     @test 0.069 < L_mcdts3 < 0.07
 
@@ -104,12 +103,11 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    Random.seed!(1234)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts4 = best_node.τs
     L_mcdts4 = L(best_node)
-    println("τ_mcdts4: $τ_mcdts4")
-    println("L_mcdts4: $L_mcdts4")
     @test τ_mcdts4 == [0, 1, 3]
     @test 0.034 < L_mcdts4 < 0.035
 
@@ -130,7 +128,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1, [error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(data_sample, optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(data_sample, optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts5 = best_node.τs
     ts_mcdts5 = best_node.ts
@@ -155,7 +153,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(data_sample, optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(data_sample, optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts5 = best_node.τs
     ts_mcdts5 = best_node.ts
@@ -179,7 +177,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Continuity_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
@@ -199,7 +197,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Continuity_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node2 = TreeEmbedding.best_embedding(tree)
     τ_mcdts2 = best_node2.τs
     L_mcdts2 = L(best_node2)
@@ -221,12 +219,11 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Range_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    Random.seed!(1234)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
-    println("τ_mcdts: $τ_mcdts")
-    println("L_mcdts: $L_mcdts")
     @test τ_mcdts == [0, 2]
     @test 1.026 < L_mcdts < 1.027
 
@@ -241,12 +238,11 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType), TreeEmbedding.Continuity_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    Random.seed!(1234)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
-    println("τ_mcdts: $τ_mcdts")
-    println("L_mcdts: $L_mcdts")
     @test τ_mcdts == [0, 26, 7, 21]
     @test 0.09 < L_mcdts < 0.1
 
@@ -265,7 +261,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,1,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Continuity_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
@@ -288,7 +284,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
     optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize,[error_wheight_insample; error_wheight_oosample]), TreeEmbedding.Continuity_function())
 
-    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth = max_depth)
+    tree = mcdts_embedding(Dataset(x1), optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
