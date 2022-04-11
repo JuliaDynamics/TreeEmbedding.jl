@@ -57,10 +57,10 @@ end
     ## Keyword arguments
     * See [`mcdts_embedding`](@ref) for a list of all keywords.
 """
-function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Dataset{D, T},
+function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Dataset{D,T},Vector{T}},
                 τs, w::Int, τ_vals, ts_vals, L_old; kwargs...) where {D, T}
 
-    Ys = DelayEmbeddings.standardize(Yss)
+    Ys = DelayEmbeddings.standardize(Dataset(Yss))
 
     # compute actual embedding trajectory Y_act
     if typeof(optimalg.Γ) == Prediction_error

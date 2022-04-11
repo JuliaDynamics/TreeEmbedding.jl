@@ -1,6 +1,6 @@
 println("\nTesting TreeEmbedding complete tree, coupled Logistic, CCM:")
 @time begin
-@testset "TreeEmbedding single rollout on univariate Logistic map data" begin
+@testset "TreeEmbedding CCM on univariate Logistic map data" begin
 
     Lval = 3500
     x = zeros(Lval)

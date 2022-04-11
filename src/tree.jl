@@ -150,7 +150,7 @@ end
     * `flag`: Did the embedding converge? i.e. L can not be further minimized anymore
 
 """
-function next_embedding(n::Node, optimalg::AbstractMCDTSOptimGoal, Ys::Dataset{D, T},
+function next_embedding(n::Node, optimalg::AbstractMCDTSOptimGoal, Ys::Union{Dataset{D,T},Vector{T}},
                                         w::Int, τs; kwargs...) where {D, T<:Real}
 
     τs_old = get_τs(n)
@@ -163,7 +163,7 @@ function next_embedding(n::Node, optimalg::AbstractMCDTSOptimGoal, Ys::Dataset{D
     return embedding_pars, flag
 end
 
-function next_embedding(n::Root, optimalg::AbstractMCDTSOptimGoal, Ys::Dataset{D, T},
+function next_embedding(n::Root, optimalg::AbstractMCDTSOptimGoal, Ys::Union{Dataset{D,T},Vector{T}},
                                         w::Int, τs; kwargs...) where {D, T<:Real}
     # initialize first embedding step
     embedding_pars = init_embedding_params(optimalg.Γ, size(Ys,2))
@@ -257,7 +257,7 @@ end
     ## Keyword arguments
     * See [`mcdts_embedding`](@ref) for a list of all keywords.
 """
-function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Dataset{D, T}, w::Int,
+function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{D,T},Vector{T}}, w::Int,
             delays::AbstractRange{DT} = 0:100, choose_mode::Int=0; max_depth::Int=20,
             verbose=false, choose_func = (L)->(TreeEmbedding.softmaxL(L,β=2.)), kwargs...) where {D, DT, T<:Real}
 
@@ -391,8 +391,8 @@ end
     [^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).
     [^Kraemer2022]: Kraemer, K.H., Gelbrecht, M., Pavithran, I., Sujith, R. I. and Marwan, N. (2022). [Optimal state space reconstruction via Monte Carlo decision tree search. Nonlinear Dynamics](https://doi.org/10.1007/s11071-022-07280-2)
 """
-function mcdts_embedding(data::Dataset, optimalg::AbstractMCDTSOptimGoal, w::Int,
-                            delays::AbstractRange{D}, N::Int=40; verbose::Bool = false, kwargs...) where {D}
+function mcdts_embedding(data::Union{Dataset{D,T},Vector{T}}, optimalg::AbstractMCDTSOptimGoal, w::Int,
+                            delays::AbstractRange, N::Int=40; verbose::Bool = false, kwargs...) where {D,T}
     @assert N > 0
     @assert w >= 0
 

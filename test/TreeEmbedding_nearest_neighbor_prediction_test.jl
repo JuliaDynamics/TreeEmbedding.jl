@@ -5,7 +5,7 @@ T_steps = 50
 
 println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
 @time begin
-@testset "TreeEmbedding single rollout on prediction of Lorenz" begin
+@testset "TreeEmbedding prediction of Lorenz" begin
 
     max_depth = 15
     x1 = data[1:end-T_steps,1]
@@ -45,7 +45,7 @@ println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
     @test length(τ_mcdts) == 4
-    @test τ_mcdts == [0, 1, 3, 5]
+    @test sort(τ_mcdts) == [0, 1, 3, 5]
     @test 0.043 < L_mcdts < 0.045
 
     # Prediction range-function, linear predictor first comp-MSE
@@ -67,7 +67,7 @@ println("\nTesting TreeEmbedding complete tree, Lorenz Prediction:")
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts2 = best_node.τs
     L_mcdts2 = L(best_node)
-    @test τ_mcdts2 == [0,5,1,2,3,4]
+    @test sort(τ_mcdts2) == [0,1,2,3,4,5]
     @test 0.0002 < L_mcdts2 < 0.0003
 
     # Prediction range-function, zeroth predictor mean-KL

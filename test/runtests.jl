@@ -1,15 +1,21 @@
 using TreeEmbedding
-using Test
+using Test, DelimitedFiles
 using Random
 using DynamicalSystemsBase
 using DelayEmbeddings
 import TreeEmbedding.L
+import Downloads
 
 # Check Lorenz System
-Random.seed!(1234)
-ds = Systems.lorenz()
-data = trajectory(ds,200)
-data = data[2001:2:3750,:]
+# Download some test timeseries
+tsfolder = joinpath(@__DIR__, "timeseries")
+todownload = ["test_time_series_Lorenz_N_875_multivariate.csv"]
+repo = "https://raw.githubusercontent.com/JuliaDynamics/JuliaDynamics/master/timeseries"
+mkpath(tsfolder)
+for a in todownload
+    Downloads.download(repo*"/"*a, joinpath(tsfolder, a))
+end
+data = Dataset(readdlm(joinpath(tsfolder, "test_time_series_Lorenz_N_875_multivariate.csv")))
 
 w1 = DelayEmbeddings.estimate_delay(data[:,1],"mi_min")
 w2 = DelayEmbeddings.estimate_delay(data[:,2],"mi_min")
