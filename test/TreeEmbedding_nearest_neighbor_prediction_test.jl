@@ -212,7 +212,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     @test τ_mcdts2 == τ_mcdts
     @test 0.065 < L_mcdts2 < 0.066
 
-    # Prediction Range-function, zeroth predictor first comp-MSE, Tw = 60
+    # Prediction Range-function, zeroth predictor first comp-MSE, Tw = 30
     delays = 0:5
     runs = 10
     Random.seed!(1234)
@@ -220,8 +220,8 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     Tw_out = 5 # oos prediction horizon
     Tw_in = 30 # insample prediction horizon
     KNN = 3 # nearest neighbors for pred method
-    error_wheight_insample = 0.8
-    error_wheight_oosample = 0.2
+    error_wheight_insample = 1
+    error_wheight_oosample = 0
     choose_func = (L)->(TreeEmbedding.minL(L))
     
     PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in, num_trials)
@@ -234,7 +234,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     τ_mcdts = best_node.τs
     L_mcdts = L(best_node)
     @test sort(τ_mcdts) == [0, 1, 4]
-    @test 0.80 < L_mcdts < 0.81
+    @test 0.99 < L_mcdts < 0.1
 
     # Prediction Continuity-function, zeroth predictor first all-comp-MSE, Tw = 50, more neighbors
     delays = 0:80
