@@ -1,4 +1,3 @@
-
 """
     The MCDTS algorithm is implemented as a tree with different kind types encoding
     the leafs and the root of the tree. AbstractTreeElement is the abstract type of
@@ -23,6 +22,7 @@ end
 Root()=Root(nothing,0)
 get_τs(n::Root) = Int[]
 get_ts(n::Root) = Int[]
+L(n::Root) = n.Lmin
 
 function Base.show(io::IO,n::Root)
     if isnothing(n.children)
@@ -46,10 +46,10 @@ abstract type AbstractEmbeddingPars end
 
 # Fields
 
-    * `τ`
-    * `t`
-    * `L` value of loss function 
-    * `temp` (optional) additional information
+    * `τ`: delay 
+    * `t`: which of the possibly multivariate time series is used at this embedding step 
+    * `L`: value of loss function 
+    * `temp`: (optional) additional information saved for later computation
 
 """
 Base.@kwdef mutable struct EmbeddingPars{S,T} <: AbstractEmbeddingPars 
@@ -70,7 +70,6 @@ temp(n::Nothing) = nothing
 Base.show(io::IO, e::EmbeddingPars) = string("τ=",τ(e),", t=",t(e),", L=",L(e))
 
 
-
 """
     mutable struct Node{T}
 
@@ -79,7 +78,7 @@ Base.show(io::IO, e::EmbeddingPars) = string("τ=",τ(e),", t=",t(e),", L=",L(e)
     ## Fieldnames:
     * `embedding_pars::EmbeddingPars`: saves delay value, time series number and value of loss funciton, see `EmbeddingPars`. 
     * `τs::Array{Int,1}`: The complete vector with all τs chosen along this path up until this node
-    * `ts::Array{Int,1}`: The complex vector which of the possibly multivariate time series is used at each embedding step i
+    * `ts::Array{Int,1}`: The complete vector which of the possibly multivariate time series is used at each embedding step i
     * `children::Union{Array{Node,1},Nothing}`: The children of this node
 """
 mutable struct Node{T} <: AbstractTreeElement

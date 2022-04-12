@@ -12,15 +12,6 @@ function push!(children::Array{Node,1}, n::EmbeddingPars, Γ::AbstractLoss, curr
     Base.push!(children, Node(n, [get_τs(current_node); τ(n)], [get_ts(current_node); t(n)], nothing))
 end
 
-# L-function is computed as increments of the last value, that's why here it has to be added to the total in this function
-function push!(children::Array{Node,1}, n::EmbeddingPars, Γ::L_statistic, current_node::Root)
-    Base.push!(children, Node(EmbeddingPars(τ=τ(n),t=t(n),L=(current_node.Lmin+L(n)),temp=temp(n)), [get_τs(current_node); τ(n)], [get_ts(current_node); t(n)], nothing))
-end 
-
-function push!(children::Array{Node,1}, n::EmbeddingPars, Γ::L_statistic, current_node::Node)
-    Base.push!(children, Node(EmbeddingPars(τ=τ(n),t=t(n),L=(L(current_node)+L(n)), temp=temp(n)), [get_τs(current_node); τ(n)], [get_ts(current_node); t(n)], nothing))
-end 
-
 """
     init_embedding_params(Γ::AbstractLoss, N::Int)
 
@@ -29,16 +20,6 @@ Return the initial embedding parameters and loss function value, based on the ch
 function init_embedding_params(Γ::AbstractLoss, N::Int)
     return [EmbeddingPars(τ=0, t=1, L=99999f0)]
 end
-function init_embedding_params(Γ::FNN_statistic, N::Int)
-    return [EmbeddingPars(τ=0, t=1, L=1f0)]
-end
-function init_embedding_params(Γ::L_statistic, N::Int)
-    return [EmbeddingPars(τ=0, t=1, L=0f0)]
-end
-function init_embedding_params(Γ::CCM_ρ, N::Int)
-    return [EmbeddingPars(τ=0, t=1, L=0f0)]
-end
-
 
 """
     get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Ys::Dataset, τs, w::Int, τ_vals,

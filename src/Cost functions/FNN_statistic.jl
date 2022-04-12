@@ -42,6 +42,10 @@ end
 
 ## Functions:
 
+function init_embedding_params(Γ::FNN_statistic, N::Int)
+    return [EmbeddingPars(τ=0, t=1, L=1f0)]
+end
+
 """
     Return the loss based on the FNN-statistic `FNN` and indices `max_idx`  for all local maxima in dps
 """

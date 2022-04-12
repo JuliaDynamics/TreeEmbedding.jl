@@ -46,6 +46,10 @@ end
 
 ## Functions:
 
+function init_embedding_params(Γ::CCM_ρ, N::Int)
+    return [EmbeddingPars(τ=0, t=1, L=0f0)]
+end
+
 """
     Return the loss based on the negative correlation coefficient for CCM.
 """

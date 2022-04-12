@@ -1,4 +1,5 @@
 # All functionality corresponding to the L-statistic as Loss function Γ.
+import Base.push!
 
 ## Constructors:
 
@@ -51,6 +52,10 @@ end
 
 ## Functions:
 
+function init_embedding_params(Γ::L_statistic, N::Int)
+  return [EmbeddingPars(τ=0, t=1, L=0f0)]
+end
+
 function get_embedding_params_according_to_loss(Γ::L_statistic, embedding_pars::Vector{EmbeddingPars}, L_old)
     threshold = Γ.threshold
     L_pot = L.(embedding_pars)
@@ -61,6 +66,10 @@ function get_embedding_params_according_to_loss(Γ::L_statistic, embedding_pars:
         return embedding_pars[ind], false
     end
 end
+
+function Base.push!(children::Array{Node,1}, n::EmbeddingPars, Γ::L_statistic, current_node::AbstractTreeElement)
+  Base.push!(children, Node(EmbeddingPars(τ=τ(n),t=t(n),L=(L(current_node)+L(n)), temp=temp(n)), [get_τs(current_node); τ(n)], [get_ts(current_node); t(n)], nothing))
+end 
 
 """
     Return the loss based on the maximum decrease of the L-statistic `L_decrease` and corresponding
