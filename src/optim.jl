@@ -3,11 +3,20 @@
 # in the according folders `./Delay preselection statistics/`
 # and `./Cost functions`.
 
-
 abstract type AbstractMCDTSOptimGoal end
 
+"""
+    AbstractDelayPreselection
+
+Supertype of all proposed structs that preselect potential delay values. A DelayPreSelection type has to have a [`get_max_idx`](@ref) and [`get_delay_statistic`](@ref) function attached to it. For examples see the source code of the already implemented [`Continuity_function`](@ref) and [`Range_function`](@ref)
+"""
 abstract type AbstractDelayPreselection end
 
+"""
+    AbstractLoss
+
+Supertype of all proposed loss/cost functions. A Loss type has to have a [`compute_loss`](@ref) function. Additionally, one can define [`init_embedding_params`](@ref), [`TreeEmbedding.push!`](@ref), [`get_embedding_params_according_to_loss`](@ref). For examples see the source code of the already implemented [`L_statistic`](@ref), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and [`Prediction_error`](@ref).
+"""
 abstract type AbstractLoss end
 
 """
