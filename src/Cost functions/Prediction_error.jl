@@ -185,7 +185,6 @@ function compute_loss(Γ::Prediction_error, Λ::AbstractDelayPreselection, dps::
         tau_trials = (τ_vals...,τs[τ_idx-1],)
         ts_trials = (ts_vals...,ts,)
         Y_trial = genembed(Ys, tau_trials.*(-1), ts_trials)
-        Y_trial1 = deepcopy(Y_trial)
 
         # make an in-sample prediction for Y_trial (if needed)
         if error_weights[1]>0

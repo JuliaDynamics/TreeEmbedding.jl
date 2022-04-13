@@ -283,6 +283,7 @@ function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{
         # choose next node
         current_node = choose_next_node(current_node, choose_func, n.Lmin, choose_mode)
         if verbose
+            println(children)
             println(current_node)
         end
     end

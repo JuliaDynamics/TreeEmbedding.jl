@@ -25,8 +25,8 @@ w = maximum(hcat(w1,w2,w3))
 
 @testset "TreeEmbedding embedding tests" begin
 
-    include("TreeEmbedding_attractor_reconstruction_tests.jl")
-    include("TreeEmbedding_convergent_cross_mapping_tests.jl")
+    #include("TreeEmbedding_attractor_reconstruction_tests.jl")
+    #include("TreeEmbedding_convergent_cross_mapping_tests.jl")
     include("TreeEmbedding_nearest_neighbor_prediction_test.jl")
 
 end
