@@ -26,10 +26,10 @@ abstract type AbstractLocalPredictionMethod{T} <: AbstractPredictionMethod end
     * `samplesize::Real = 1.`: the fraction of all phase space points
       to be considered in the computation of the prediction error under the given
       `PredictionType`.
-    * `error_wheights::Vector{Real} = [0 1]`: The wheights for determining the prediction 
-      error. The first element of this Vector is the wheight for the insample prediction
-      error and the second elements corresponds to the wheight for the out-of-sample
-      prediction error. By default only the out-of-sample error will be used (i.e. wheights [0 1]).
+    * `error_weights::Vector{Real} = [0 1]`: The weights for determining the prediction 
+      error. The first element of this Vector is the weight for the insample prediction
+      error and the second elements corresponds to the weight for the out-of-sample
+      prediction error. By default only the out-of-sample error will be used (i.e. weights [0 1]).
       For specifying the prediction horizon see [`local_model`](@ref)  
 
     ## Defaults
@@ -42,7 +42,7 @@ struct Prediction_error <: AbstractLoss
     PredictionType::AbstractMCDTSpredictionType
     threshold::AbstractFloat
     samplesize::Real
-    error_wheights::Vector{Real}
+    error_weights::Vector{Real}
     # Constraints and Defaults
     Prediction_error(x ,y=0, z=1, zz=[0;1.]) = begin
         @assert y ≥ 0 "A positive threshold for the prediciton loss must be chosen."
@@ -173,7 +173,7 @@ function compute_loss(Γ::Prediction_error, Λ::AbstractDelayPreselection, dps::
     PredictionLoss = Γ.PredictionType.loss
     PredictionMethod = Γ.PredictionType.method
     samplesize = Γ.samplesize
-    error_wheights = Γ.error_wheights
+    error_weights = Γ.error_weights
 
     max_idx = get_max_idx(Λ, dps, τ_vals, ts_vals, ts) # get the candidate delays
     isempty(max_idx) && return Float64[], Int64[], []
@@ -188,17 +188,17 @@ function compute_loss(Γ::Prediction_error, Λ::AbstractDelayPreselection, dps::
         Y_trial1 = deepcopy(Y_trial)
 
         # make an in-sample prediction for Y_trial (if needed)
-        if error_wheights[1]>0
+        if error_weights[1]>0
             prediction_insample, ns, temp = insample_prediction(PredictionMethod, Y_trial; samplesize, w, metric, i_cycle=length(τ_vals), kwargs...)
             # compute loss/costs
             costs_insample[i] = compute_costs_from_prediction(PredictionLoss, prediction_insample, Y_trial, PredictionMethod.Tw_in, ns)
         end
         # make an out-of-sample prediction for Y_trial (if needed)
-        if error_wheights[2]>0
+        if error_weights[2]>0
             costs_out_of_sample[i] = out_of_sample_prediction(PredictionMethod, PredictionLoss, Y_trial; w, metric, i_cycle=length(τ_vals), kwargs...)
         end
     end
-    costs = error_wheights[1]*costs_insample .+ error_wheights[2]*costs_out_of_sample
+    costs = error_weights[1]*costs_insample .+ error_weights[2]*costs_out_of_sample
 
     return costs, max_idx, [nothing for i in max_idx]
 end

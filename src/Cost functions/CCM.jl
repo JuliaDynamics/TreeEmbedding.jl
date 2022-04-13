@@ -136,7 +136,7 @@ function ccm(X::Dataset{D,T},Y::Vector{T}; metric = Euclidean(), w::Int = 1,
             u[k] = exp(-(j/NNdist[1]))
         end
         ws = u ./ sum(u)
-        # compute Y_hat as a wheighted sum
+        # compute Y_hat as a weighted sum
         Y_hat[i] = sum(ws .* Y[NNidxs])
     end
     ρ = Statistics.cor(Y_hat, Y[ns])
