@@ -7,11 +7,11 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
 @time begin
 @testset "TreeEmbedding prediction of Lorenz" begin
 
-    # max_depth = 15
-    # x1 = data[1:end-T_steps,1]
-    # x2 = data[end-T_steps+1:end,1]
-    # y1 = data[1:end-T_steps,2]
-    # y2 = data[end-T_steps+1:end,2]
+    max_depth = 15
+    x1 = data[1:end-T_steps,1]
+    x2 = data[end-T_steps+1:end,1]
+    y1 = data[1:end-T_steps,2]
+    y2 = data[end-T_steps+1:end,2]
     
     # # Prediction range-function, zeroth predictor first comp-MSE
     # delays = 0:5
