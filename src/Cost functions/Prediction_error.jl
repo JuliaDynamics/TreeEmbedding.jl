@@ -235,13 +235,15 @@ function insample_prediction(pred_meth::AbstractLocalPredictionMethod, Y::Abstra
         ns = sample(vec(1:NN), Nfp, replace = false)  # indices of fiducial points
     end
     prediction_new = deepcopy(Y[ns,:]) # intitial trajectory up to the prediction time horizon
-    prediction_old = deepcopy(Y) # intitial trajectory prediction is based on 
+    prediction_old = deepcopy(Y) # intitial trajectory prediction is based on
+
     for i = 1:Tw
         insample_prediction!(pred_meth, prediction_old, prediction_new, ns; w, K = pred_meth.KNN, Tw_step = i)
     end
+
     return prediction_new, ns, nothing
 end
- 
+
 function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:zeroth}, prediction_old::AbstractDataset{D, ET}, 
                 prediction_new::AbstractDataset{D, ET}, ns::Union{AbstractRange, AbstractVector}; 
                 w::Int = 1, metric = Euclidean(), K::Int=1, Tw_step::Int=1) where {D, ET}
@@ -251,6 +253,7 @@ function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:zeroth},
     ns_act = ns .+ (Tw_step -1)  
     allNNidxs, _ = DelayEmbeddings.all_neighbors(vtree, prediction_old[ns_act], ns_act, K, w)
     ϵ_ball = zeros(ET, K, D) # preallocation
+
     # loop over each fiducial point
     for (i,v) in enumerate(ns_act)
         NNidxs = allNNidxs[i] # indices of k nearest neighbors to v
@@ -262,6 +265,7 @@ function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:zeroth},
         # take the average as a prediction
         prediction_new[i] = mean(ϵ_ball; dims=1)
     end
+
     for (i,v) in enumerate(ns_act)
         prediction_old[v+1] = prediction_new[i] # update trajectory with the predicted 1-step ahead values
     end 
@@ -400,7 +404,6 @@ function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{1}
 end
 function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{2}, prediction::AbstractDataset{D, T},
                             Y::AbstractDataset{D, T}, Tw::Int, ns::Union{AbstractRange,AbstractVector}) where {D, T}
-
     NN = length(ns)
     @assert length(prediction) == length(ns)
     costs = zeros(T, NN, D)
@@ -412,7 +415,6 @@ function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{2}
 end
 function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{3}, prediction::AbstractDataset{D, T},
                             Y::AbstractDataset{D, T}, Tw::Int, ns::Union{AbstractRange,AbstractVector}) where {D, T}
-
     NN = length(ns)
     @assert length(prediction) == length(ns)
     costs = zeros(D)
@@ -423,7 +425,6 @@ function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{3}
 end
 function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{4}, prediction::AbstractDataset{D, T},
                             Y::AbstractDataset{D, T}, Tw::Int, ns::Union{AbstractRange,AbstractVector}) where {D, T}
-
     NN = length(ns)
     @assert length(prediction) == length(ns)
     costs = zeros(D)

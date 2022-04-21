@@ -1,3 +1,13 @@
+# for locally test this package outcomment the following two lines in order to
+# mimic a "clean" environment
+
+# empty!(LOAD_PATH)
+# push!(LOAD_PATH,"./Project.toml")
+
+#import Pkg
+#Pkg.activate("./test/")
+#print(Base.active_project())
+
 using TreeEmbedding
 using Test, DelimitedFiles
 using Random

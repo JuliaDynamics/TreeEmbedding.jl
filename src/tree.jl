@@ -282,10 +282,9 @@ function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{
         end
         # choose next node
         current_node = choose_next_node(current_node, choose_func, n.Lmin, choose_mode)
-        if verbose
-            println(children)
-            println(current_node)
-        end
+        # if verbose
+        #     println(children)
+        # end
     end
     # now backprop the values (actually we go to top to bottom, but we know were to end because we got the correct τs and ts)
     backprop!(n, current_node.τs, current_node.ts, L(current_node))
@@ -401,7 +400,7 @@ function mcdts_embedding(data::Union{Dataset{D,T},Vector{T}}, optimalg::Abstract
     for i=1:N
         choose_mode=i<(N/2) ? 0 : 1 # in the first half of the trials uniform branching in the first embedding cycle,
         # in the second half use softmax function for branching even in the first cycle.
-        expand!(tree, optimalg, data, w, delays, choose_mode; kwargs...)
+        expand!(tree, optimalg, data, w, delays, choose_mode; verbose, kwargs...)
         if verbose
             if (i%1)==0
                 println(i,"/",N)
