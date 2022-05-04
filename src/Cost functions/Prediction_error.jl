@@ -26,10 +26,12 @@ abstract type AbstractLocalPredictionMethod{T} <: AbstractPredictionMethod end
     * `samplesize::Real = 1.`: the fraction of all phase space points
       to be considered in the computation of the prediction error under the given
       `PredictionType`.
-    * `error_weights::Vector{Real} = [0 1]`: The weights for determining the prediction 
+    * `error_weights::Vector{Real} = [1 1]`: The weights for determining the prediction 
       error. The first element of this Vector is the weight for the insample prediction
       error and the second elements corresponds to the weight for the out-of-sample
-      prediction error. By default only the out-of-sample error will be used (i.e. weights [0 1]).
+      prediction error. By default only the out-of-sample error will be used (i.e. equal 
+      weights [1 1]). Since the out-of-sample prediction error is generally larger than 
+      the insample prediction error it may make sense to tune these wheight-parameters.
       For specifying the prediction horizon see [`local_model`](@ref)  
 
     ## Defaults
@@ -44,7 +46,7 @@ struct Prediction_error <: AbstractLoss
     samplesize::Real
     error_weights::Vector{Real}
     # Constraints and Defaults
-    Prediction_error(x ,y=0, z=1, zz=[0;1.]) = begin
+    Prediction_error(x ,y=0, z=1, zz=[1.;1.]) = begin
         @assert y ≥ 0 "A positive threshold for the prediciton loss must be chosen."
         @assert 0 < z ≤ 1. "The samplesize must be in the interval (0 1]."
         @assert length(zz) == 2 && 0 <= zz[1] ≤ 1 && 0 <= zz[2] ≤ 1 "The errorweights 
@@ -205,9 +207,9 @@ end
 
 """
     insample_prediction(pred_meth::AbstractPredictionMethod, Y::AbstractDataset{D, ET};
-            samplesize::Real = 1, K::Int = 3, w::Int = 1, Tw::Int = 1, metric = Euclidean()) → prediction
+            K::Int = 3, w::Int = 1, Tw::Int = 1, metric = Euclidean()) → prediction
 
-    Compute an in-sample `Tw`-time-steps-ahead prediction of the data `Y`, using
+    Compute an in-sample - not iterated - `Tw`-time-steps-ahead prediction of the trajectory `Y`, using
     the prediction method `pred_meth`. `w` is the Theiler window and `K` the nearest
     neighbors used.
 
@@ -223,7 +225,8 @@ end
     nearest neighbours used gets adapted to 2(D+1) - with D the embedding dimension,
     if the provided `K` is lower than that number.")
 """
-function insample_prediction(pred_meth::AbstractLocalPredictionMethod, Y::AbstractDataset{D, ET}; samplesize::Real= 1, w::Int = 1, metric = Euclidean(), i_cycle::Int=1, kwargs...) where {D, ET}
+function insample_prediction(pred_meth::AbstractLocalPredictionMethod, Y::AbstractDataset{D, ET}; 
+    samplesize::Real= 1, w::Int = 1, metric = Euclidean(), i_cycle::Int=1, kwargs...) where {D, ET}
 
     Tw = pred_meth.Tw_in # total time horizon
     NN = length(Y)-Tw
@@ -234,66 +237,55 @@ function insample_prediction(pred_meth::AbstractLocalPredictionMethod, Y::Abstra
         Nfp = Int(floor(samplesize*NN)) # number of considered fiducial points
         ns = sample(vec(1:NN), Nfp, replace = false)  # indices of fiducial points
     end
-    prediction_new = deepcopy(Y[ns,:]) # intitial trajectory up to the prediction time horizon
-    prediction_old = deepcopy(Y) # intitial trajectory prediction is based on
 
-    for i = 1:Tw
-        insample_prediction!(pred_meth, prediction_old, prediction_new, ns; w, K = pred_meth.KNN, Tw_step = i)
-    end
+    prediction = Dataset(zeros(ET, Nfp, D))
+    insample_prediction!(pred_meth, Y, prediction, ns; w, K = pred_meth.KNN, Tw, metric)
 
-    return prediction_new, ns, nothing
+    return prediction, ns, nothing
 end
 
-function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:zeroth}, prediction_old::AbstractDataset{D, ET}, 
-                prediction_new::AbstractDataset{D, ET}, ns::Union{AbstractRange, AbstractVector}; 
-                w::Int = 1, metric = Euclidean(), K::Int=1, Tw_step::Int=1) where {D, ET}
+function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:zeroth}, Y::AbstractDataset{D, ET}, prediction_new::AbstractDataset{D, ET}, 
+            ns::Union{AbstractRange, AbstractVector}; w::Int = 1, metric = Euclidean(), K::Int=1, Tw::Int=1) where {D, ET}
 
     NN = length(prediction_new)
-    vtree = KDTree(prediction_old[1:NN+Tw_step-1], metric)
-    ns_act = ns .+ (Tw_step -1)  
-    allNNidxs, _ = DelayEmbeddings.all_neighbors(vtree, prediction_old[ns_act], ns_act, K, w)
+    vtree = KDTree(Y[1:NN], metric)
+    allNNidxs, _ = DelayEmbeddings.all_neighbors(vtree, Y[ns], ns, K, w)
     ϵ_ball = zeros(ET, K, D) # preallocation
 
     # loop over each fiducial point
-    for (i,v) in enumerate(ns_act)
+    for (i,v) in enumerate(ns)
         NNidxs = allNNidxs[i] # indices of k nearest neighbors to v
 
         # determine neighborhood one time step ahead
         @inbounds for (k, j) in enumerate(NNidxs)
-            ϵ_ball[k, :] .= prediction_old[j+1] # consider 1-step ahead prediction
+            ϵ_ball[k, :] .= Y[j+Tw] # consider Tw-step ahead prediction
         end
         # take the average as a prediction
         prediction_new[i] = mean(ϵ_ball; dims=1)
     end
-
-    for (i,v) in enumerate(ns_act)
-        prediction_old[v+1] = prediction_new[i] # update trajectory with the predicted 1-step ahead values
-    end 
 end
-function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:linear}, prediction_old::AbstractDataset{D, ET}, 
-                prediction_new::AbstractDataset{D, ET}, ns::Union{AbstractRange, AbstractVector};
-                w::Int = 1, metric = Euclidean(), K::Int=1, Tw_step::Int=1) where {D, ET}
+function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:linear}, Y::AbstractDataset{D, ET}, prediction_new::AbstractDataset{D, ET}, 
+            ns::Union{AbstractRange, AbstractVector}; w::Int = 1, metric = Euclidean(), K::Int=1, Tw::Int=1) where {D, ET}
 
     if K < 2*(D+1)
         K = 2*(D+1)
     end
     NN = length(prediction_new)
-    vtree = KDTree(prediction_old[1:NN+Tw_step-1], metric)  
-    ns_act = ns .+ (Tw_step -1) 
-    allNNidxs, _ = DelayEmbeddings.all_neighbors(vtree, prediction_old[ns_act], ns_act, K, w)
+    vtree = KDTree(Y[1:NN], metric) 
+    allNNidxs, _ = DelayEmbeddings.all_neighbors(vtree, Y[ns], ns, K, w)
     prediction = zeros(ET, D) # preallocation
     ϵ_ball = zeros(ET, K, D) # preallocation
     b  = zeros(D) # preallocation
     ar_coeffs = zeros(D, D) # preallocation
 
     # loop over each fiducial point
-    for (i,v) in enumerate(ns_act)
+    for (i,v) in enumerate(ns)
         NNidxs = allNNidxs[i] # indices of k nearest neighbors to v
         A = ones(K,D) # datamatrix for later linear equation to solve for AR-process
         # determine neighborhood one time step ahead
         @inbounds for (k, j) in enumerate(NNidxs)
-            ϵ_ball[k, :] .= prediction_old[j + 1] # consider 1-step ahead prediction
-            A[k,:] = prediction_old[j]
+            ϵ_ball[k, :] .= Y[j + Tw] # consider Tw-step ahead prediction
+            A[k,:] = Y[j]
         end
  
         namess = ["X"*string(z) for z = 1:D]
@@ -312,13 +304,10 @@ function insample_prediction!(pred_meth::AbstractLocalPredictionMethod{:linear},
             for k = 1:D
                 ar_coeffs[j,k] = coef(ols)[k+1]
             end
-            prediction[j] = prediction_old[v,:]'*ar_coeffs[j,:] + b[j]
+            prediction[j] = Y[v,:]'*ar_coeffs[j,:] + b[j]
         end
         prediction_new[i] = prediction
     end
-    for (i,v) in enumerate(ns_act)
-        prediction_old[v+1] = prediction_new[i] # update trajectory with the predicted values
-    end 
 end
 
 
