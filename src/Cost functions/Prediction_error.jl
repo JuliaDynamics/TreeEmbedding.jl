@@ -193,10 +193,16 @@ function compute_loss(Γ::Prediction_error, Λ::AbstractDelayPreselection, dps::
             prediction_insample, ns, temp = insample_prediction(PredictionMethod, Y_trial; samplesize, w, metric, i_cycle=length(τ_vals), kwargs...)
             # compute loss/costs
             costs_insample[i] = compute_costs_from_prediction(PredictionLoss, prediction_insample, Y_trial, PredictionMethod.Tw_in, ns)
+            if costs_insample[i] == 0
+                println("WARNINNG: The chosen error-metric $PredictionLoss might not be able to work with your data and could yield useless results. Either increase the time series length or choose a different error-metrix.")
+            end
         end
         # make an out-of-sample prediction for Y_trial (if needed)
         if error_weights[2]>0
             costs_out_of_sample[i] = out_of_sample_prediction(PredictionMethod, PredictionLoss, Y_trial; w, metric, i_cycle=length(τ_vals), kwargs...)
+            if costs_out_of_sample[i] == 0
+                println("WARNINNG: The chosen error-metric $PredictionLoss might not be able to work with your data and could yield useless results. Either increase the time series length or choose a different error-metrix.")
+            end
         end
     end
     costs = error_weights[1]*costs_insample .+ error_weights[2]*costs_out_of_sample
