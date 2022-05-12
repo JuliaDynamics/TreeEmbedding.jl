@@ -30,48 +30,48 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
 
     PredictionLoss = TreeEmbedding.PredictionLoss(1)
     costs_insample = TreeEmbedding.compute_costs_from_prediction(PredictionLoss, prediction_insample, Y_trial, PredMeth.Tw_in, ns)
-    @test costs_insample == 0.37204693617062456
+    @test costs_insample ≈ 0.37204693617062456
     
     PredictionLoss = TreeEmbedding.PredictionLoss(2)
     costs_insample = TreeEmbedding.compute_costs_from_prediction(PredictionLoss, prediction_insample, Y_trial, PredMeth.Tw_in, ns)
-    @test costs_insample == 0.4634731978522113
+    @test costs_insample ≈ 0.4634731978522113
     
     PredictionLoss = TreeEmbedding.PredictionLoss(3)
     costs_insample = TreeEmbedding.compute_costs_from_prediction(PredictionLoss, prediction_insample, Y_trial, PredMeth.Tw_in, ns)
-    @test costs_insample == 0.013229431563550997
+    @test costs_insample ≈ 0.013229431563550997
     
     PredictionLoss = TreeEmbedding.PredictionLoss(4)
     costs_insample = TreeEmbedding.compute_costs_from_prediction(PredictionLoss, prediction_insample, Y_trial, PredMeth.Tw_in, ns)
-    @test costs_insample == 0.014020691329639021
+    @test costs_insample ≈ 0.014020691329639021
 
     KNN = 7
     PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
-    @test prediction_insample[1] == [-10.475824990237367, -7.862249129934621, -6.34814615223535]
-    @test prediction_insample[100] == [-9.082393020151338, -6.278012992500267, -7.379658787516312]
+    @test prediction_insample[1] ≈ [-10.475824990237367, -7.862249129934621, -6.34814615223535]
+    @test prediction_insample[100] ≈ [-9.082393020151338, -6.278012992500267, -7.379658787516312]
 
     Tw_in = 4
     PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
-    @test prediction_insample[1] == [ -9.917781189190842, -6.834366360783968, -6.81994342218101]
-    @test prediction_insample[100] == [-7.705390632465702, -6.222726841729036, -8.624366124067231]
+    @test prediction_insample[1] ≈ [ -9.917781189190842, -6.834366360783968, -6.81994342218101]
+    @test prediction_insample[100] ≈ [-7.705390632465702, -6.222726841729036, -8.624366124067231]
 
     Tw_in = 1
     PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
-    @test prediction_insample[1] == [-10.250767157116556, -7.8655765196596015, -6.619399745711982]
-    @test prediction_insample[100] == [-9.0588381328615, -6.215913402473714, -7.379275386507503]
+    @test prediction_insample[1] ≈ [-10.250767157116556, -7.8655765196596015, -6.619399745711982]
+    @test prediction_insample[100] ≈ [-9.0588381328615, -6.215913402473714, -7.379275386507503]
 
     Tw_in = 3
     KNN = 3
     PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
-    @test prediction_insample[1] == [ -9.959820444468269, -7.227110425809523, -6.887937241321643]
-    @test prediction_insample[100] == [ -8.102474744015897, -6.121537468270782, -8.201839821259416]
+    @test prediction_insample[1] ≈ [ -9.959820444468269, -7.227110425809523, -6.887937241321643]
+    @test prediction_insample[100] ≈ [ -8.102474744015897, -6.121537468270782, -8.201839821259416]
 
 
     # out-of-sample:
@@ -87,13 +87,13 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     Random.seed!(123)
     costs_out_of_sample = TreeEmbedding.out_of_sample_prediction(PredMeth, PredictionLoss, Y_trial; w)
 
-    @test costs_out_of_sample == 0.6174185479597902
+    @test costs_out_of_sample ≈ 0.6174185479597902
 
     PredictionLoss = TreeEmbedding.PredictionLoss(2)
     Random.seed!(123)
     costs_out_of_sample = TreeEmbedding.out_of_sample_prediction(PredMeth, PredictionLoss, Y_trial; w)
 
-    @test costs_out_of_sample == 0.3319391558758847
+    @test costs_out_of_sample ≈ 0.3319391558758847
 
     PredictionLoss = TreeEmbedding.PredictionLoss(3)
     Random.seed!(123)
@@ -112,7 +112,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     Random.seed!(123)
     costs_out_of_sample = TreeEmbedding.out_of_sample_prediction(PredMeth, PredictionLoss, Y_trial; w)
 
-    @test costs_out_of_sample == 0.5421776166018837
+    @test costs_out_of_sample ≈ 0.5421776166018837
 
     PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in, trialss)
     PredictionLoss = TreeEmbedding.PredictionLoss(1)
@@ -120,7 +120,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     Random.seed!(123)
     costs_out_of_sample = TreeEmbedding.out_of_sample_prediction(PredMeth, PredictionLoss, Y_trial; w)
 
-    @test costs_out_of_sample == 0.024738135630960313
+    @test costs_out_of_sample ≈ 0.024738135630960313
 
 
 

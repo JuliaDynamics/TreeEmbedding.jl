@@ -390,10 +390,11 @@ function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{1}
 
     NN = length(ns)
     @assert length(prediction) == length(ns)
-    costs = zeros(T, NN, D)
-    @inbounds for (i,v) in enumerate(ns)
-        costs[i,:] = (Vector(prediction[i]) .- Vector(Y[v+Tw])).^2
-    end
+    # costs = zeros(T, NN, D)
+    # @inbounds for (i,v) in enumerate(ns)
+    #     costs[i,:] = (Vector(prediction[i]) .- Vector(Y[v+Tw])).^2
+    # end
+    costs = abs2.(Matrix(prediction) - Matrix(Y[ns.+Tw]))
     c = sqrt.(mean(costs; dims=1))
     return c[1]
 end
@@ -401,10 +402,11 @@ function compute_costs_from_prediction(PredictionLoss::AbstractPredictionLoss{2}
                             Y::AbstractDataset{D, T}, Tw::Int, ns::Union{AbstractRange,AbstractVector}) where {D, T}
     NN = length(ns)
     @assert length(prediction) == length(ns)
-    costs = zeros(T, NN, D)
-    @inbounds for (i,v) in enumerate(ns)
-        costs[i,:] = (Vector(prediction[i]) .- Vector(Y[v+Tw])).^2
-    end
+    # costs = zeros(T, NN, D)
+    # @inbounds for (i,v) in enumerate(ns)
+    #     costs[i,:] = (Vector(prediction[i]) .- Vector(Y[v+Tw])).^2
+    # end
+    costs = abs2.(Matrix(prediction) - Matrix(Y[ns.+Tw]))
     c = sqrt.(mean(costs; dims=1))
     return mean(c)
 end
