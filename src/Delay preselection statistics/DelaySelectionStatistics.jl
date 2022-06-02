@@ -9,22 +9,25 @@
 """
     Continuity_function <: AbstractDelayPreselection
 
-    Constructor for the continuity function `⟨ε★⟩` by Pecora et al.[^Pecora2007],
-    see [`pecora`](@ref).
+Constructor for the continuity function `⟨ε★⟩` by Pecora et al.[^Pecora2007],
+see [`pecora`](@ref).
 
-    ## Fieldnames
-    * `K::Int`: the amount of nearest neighbors in the δ-ball. Must be at
-      least 8 (in order to gurantee a valid statistic). `⟨ε★⟩` is computed taking
-      the minimum result over all `k ∈ K` (read algorithm description in [`pecora`](@ref)).
-    * `samplesize::Real`: determine the fraction of all phase space points
-      to be considered (fiducial points v) to average ε★ to produce `⟨ε★⟩`.
-    * `α::Real = 0.05`: The significance level for obtaining the continuity statistic
-    * `p::Real = 0.5`: The p-parameter for the binomial distribution used for the
-      computation of the continuity statistic ⟨ε★⟩.
+## Fieldnames
+* `K::Int`: the amount of nearest neighbors in the δ-ball. Must be at
+    least 8 (in order to gurantee a valid statistic). `⟨ε★⟩` is computed taking
+    the minimum result over all `k ∈ K` (read algorithm description in [`pecora`](@ref)).
+* `samplesize::Real`: determine the fraction of all phase space points
+    to be considered (fiducial points v) to average ε★ to produce `⟨ε★⟩`.
+* `α::Real = 0.05`: The significance level for obtaining the continuity statistic
+* `p::Real = 0.5`: The p-parameter for the binomial distribution used for the
+    computation of the continuity statistic ⟨ε★⟩.
 
-    ## Defaults
-    * When calling `Continuity_function()` a Continuity_function-object is constructed
-      with `K=13`, `samplesize=1.`, `α=0.05` and `p=0.5`.
+## Defaults
+* When calling `Continuity_function()` a Continuity_function-object is constructed
+    with `K=13`, `samplesize=1.`, `α=0.05` and `p=0.5`.
+
+## References
+[^Pecora2007]: Pecora, L. M., Moniz, L., Nichols, J., & Carroll, T. L. (2007). [A unified approach to attractor reconstruction. Chaos 17(1)](https://doi.org/10.1063/1.2430294).
 
 """
 struct Continuity_function <: AbstractDelayPreselection
@@ -45,11 +48,11 @@ end
 """
     Range_function <: AbstractDelayPreselection
 
-    Constructor for a range of possible delay values. In this case there is
-    actually no "pre-selection" of delay, but rather all possible delays, given
-    in the input `τs` (see, [`mcdts_embedding`](@ref)) are considered. This can significantly affect the
-    computation time. There are no fieldnames, simply construct by typing
-    `RangeFunction()`.
+Constructor for a range of possible delay values. In this case there is
+actually no "pre-selection" of delay, but rather all possible delays, given
+in the input `τs` (see, [`mcdts_embedding`](@ref)) are considered. This can significantly affect the
+computation time. There are no fieldnames, simply construct by typing
+`RangeFunction()`.
 """
 struct Range_function <: AbstractDelayPreselection end
 
@@ -59,11 +62,11 @@ struct Range_function <: AbstractDelayPreselection end
 """
     get_max_idx(Λ::AbstractDelayPreselection, dps::Vector, τ_vals, ts_vals) → max_idx
 
-    Compute the candidate delay values from the given delay pre-selection statistic
-    `dps` with respect to `Λ`, which determined how `dps` was obtained and how
-    to select the candidates (e.g. pick the maxima of `dps` in case of the
-    `Λ` being the Continuity function). See [`Continuity_function`](@ref) and
-    [`Range_function`](@ref).
+Compute the candidate delay values from the given delay pre-selection statistic
+`dps` with respect to `Λ`, which determined how `dps` was obtained and how
+to select the candidates (e.g. pick the maxima of `dps` in case of the
+`Λ` being the Continuity function). See [`Continuity_function`](@ref) and
+[`Range_function`](@ref).
 """
 function get_max_idx(Λ::Range_function, dps::Vector{T}, τ_vals, ts_vals, ts) where {T}
     max_idx = Vector(dps[2:end].+1)
@@ -84,7 +87,7 @@ end
 """
     get_delay_statistic(optimalg.Λ<: AbstractDelayPreselection, Ys, τs, w, τ_vals, ts_vals; kwargs... )
 
-    Compute the delay statistic according to the chosen method in `optimalg.Λ` (see [`MCDTSOptimGoal`](@ref))
+Compute the delay statistic according to the chosen method in `optimalg.Λ` (see [`MCDTSOptimGoal`](@ref))
 """
 function get_delay_statistic(Λ::Continuity_function, Ys, τs, w, τ_vals, ts_vals; metric = Euclidean(), kwargs... )
 

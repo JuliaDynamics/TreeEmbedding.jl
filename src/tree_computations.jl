@@ -23,20 +23,23 @@ end
 
 """
     get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Ys::Dataset, τs, w::Int, τ_vals,
-                    ts_vals, L_old ; kwargs...]) → τ_pot, ts_pot, L_pot, flag, temps
+                    ts_vals, L_old ; kwargs...]) → embedding_pars, is_converged
 
-    Computes an vector of potential embedding parameters: the potential delay `τ_pot` and 
-    time series values `ts_pot`, which would each result in a potential Loss-statistic value 
-    `L_pot`, by using an embedding method specified in `optimalg` [^Kraemer2022] (see [`MCDTSOptimGoal`](@ref))
-    and for a range of possible delay values `τs`. The input dataset `Ys` can be
-    multivariate. `w` is the Theiler window (neighbors in time with index `w` close
-    to the point, that are excluded from being true neighbors. `w=0` means to
-    exclude only the point itself, and no temporal neighbors. In case of multivariate
-    time series input choose `w` as the maximum of all `wᵢ's`. `τ_vals` and `ts_vals`
-    describe the embedding up to the current embedding cycle.
+Computes a vector of potential embedding parameters: the potential delay `τ_pot` and 
+time series values `ts_pot`, which would each result in a potential Loss-statistic value 
+`L_pot`, by using an embedding method specified in `optimalg` [^Kraemer2022] (see [`MCDTSOptimGoal`](@ref))
+and for a range of possible delay values `τs`. These embedding parameters are stored in the returned
+`embedding_pars` object (see [`EmbeddingPars`](@ref)). Additionally, `is_converged` (`::Bool`) indicates 
+whether the chosen Loss-function can be minimized further or not.
+    
+The input dataset `Ys` can be multivariate. `w` is the Theiler window (neighbors in time with index `w` close
+to the point, that are excluded from being true neighbors. `w=0` means to
+exclude only the point itself, and no temporal neighbors. In case of multivariate
+time series input choose `w` as the maximum of all `wᵢ's`. `τ_vals` and `ts_vals`
+describe the embedding up to the current embedding cycle.
 
-    ## Keyword arguments
-    * See [`mcdts_embedding`](@ref) for a list of all keywords.
+## Keyword arguments
+* See [`mcdts_embedding`](@ref) for a list of all keywords.
 """
 function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Dataset{D,T},Vector{T}},
                 τs, w::Int, τ_vals, ts_vals, L_old; kwargs...) where {D, T}
@@ -59,18 +62,19 @@ function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Datas
         return EmbeddingPars[], flag
     end
 
-    embedding_pars, converge = get_embedding_params_according_to_loss(optimalg.Γ,
+    embedding_pars, is_converged = get_embedding_params_according_to_loss(optimalg.Γ,
                                             embedding_pars, L_old)
 
-    return embedding_pars, converge
+    return embedding_pars, is_converged
 end
 
 """
-    get_embedding_params_according_to_loss(Γ::AbstractLoss, τ_pot, ts_popt, L_pot, L_old)
+    get_embedding_params_according_to_loss(Γ::AbstractLoss, τ_pot, ts_popt, L_pot, L_old) -> embedding_par, is_converged
 
-    Helper function for [`get_potential_delays`](@ref). Computes the potential
-    delay-, time series- and according Loss-values with respect to the actual loss
-    in the current embedding cycle.
+Helper function for [`get_potential_delays`](@ref). Computes the potential
+delay-, time series- and according Loss-values with respect to the actual loss
+in the current embedding cycle, all stored in an `embedding_pars`-object (see [`EmbeddingPars`](@ref)). 
+`is_converged` (`::Bool`) indicates whether the chosen Loss-function can be minimized further or not.
 """
 function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old)
     threshold = Γ.threshold
@@ -87,11 +91,14 @@ function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars
 end
 
 """
-    Perform a potential embedding cycle from the multi- or univariate Dataset `Ys`.
-    Return the possible delays `τ_pot`, the associated time series `ts_pot` and
-    the corresponding L-statistic-values, `L_pot` for each peak, i.e. for each
-    (`τ_pot`, `ts_pot`) pair. If `FNN=true`, `L_pot` stores the corresponding
-    fnn-statistic-values.
+    embedding_cycle(optimalg::AbstractMCDTSOptimGoal, Y_act, Ys, τs,
+                                    w, τ_vals, ts_vals; kwargs...) -> embedding_params
+
+Perform a potential embedding cycle from the multi- or univariate Dataset `Ys`.
+Return the possible delays `τ_pot`, the associated time series `ts_pot` and
+the corresponding Loss-statistic-values, `L_pot` for each peak, i.e. for each
+(`τ_pot`, `ts_pot`) pair. These embedding parameters are stored in the returned
+`embedding_params` object (see [`EmbeddingPars`](@ref)).
 """
 function embedding_cycle(optimalg::AbstractMCDTSOptimGoal, Y_act, Ys, τs,
                                                     w, τ_vals, ts_vals; kwargs...)

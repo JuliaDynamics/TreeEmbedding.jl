@@ -5,24 +5,25 @@
 """
     FNN_statistic <: AbstractLoss
 
-    Constructor for the FNN-statistic loss function (false nearest neighbor) based
-    on Hegger & Kantz [^Hegger1999].
+Constructor for the FNN-statistic loss function (false nearest neighbor) based
+on Hegger & Kantz [^Hegger1999].
 
-    ## Fieldnames
-    * `threshold::Float`: A threshold for the tolerable cumulative FNN decrease
-      for the current embedding. When the fraction of FNNs fall below this threshold
-      in an embedding cycle the embedding stops.
-    * `r::Float = 2`: The FNN-distance-expansion threshold (typically set to 2).
-    * `samplesize::Real = 1.`: the fraction of all phase space points
-      to be considered in the computation of the L-statistic(s).
+## Fieldnames
+* `threshold::Float`: A threshold for the tolerable cumulative FNN decrease
+    for the current embedding. When the fraction of FNNs fall below this threshold
+    in an embedding cycle the embedding stops.
+* `r::Float = 2`: The FNN-distance-expansion threshold (typically set to 2).
+* `samplesize::Real = 1.`: the fraction of all phase space points
+    to be considered in the computation of the L-statistic(s).
 
-    ## Defaults
-    * When calling `FNN_statistic()`, a FNN_statistic-object is created, which uses no
-      threshold and uses the FNN-inter threshold `r=2`.
-    * When calling `FNN_statistic(threshold)`, a FNN_statistic-object is created, which uses
-      the given `threshold` and uses the FNN-inter threshold `r=2`.
+## Defaults
+* When calling `FNN_statistic()`, a FNN_statistic-object is created, which uses no
+    threshold and uses the FNN-inter threshold `r=2`.
+* When calling `FNN_statistic(threshold)`, a FNN_statistic-object is created, which uses
+    the given `threshold` and uses the FNN-inter threshold `r=2`.
 
-    [^Hegger1999]: Hegger & Kantz, [Improved false nearest neighbor method to detect determinism in time series data. Physical Review E 60, 4970](https://doi.org/10.1103/PhysRevE.60.4970).
+## References
+[^Hegger1999]: Hegger & Kantz, [Improved false nearest neighbor method to detect determinism in time series data. Physical Review E 60, 4970](https://doi.org/10.1103/PhysRevE.60.4970).
 """
 struct FNN_statistic <: AbstractLoss
     threshold::AbstractFloat
@@ -92,14 +93,13 @@ end
 """
     fnn_embedding_cycle(NNdist, NNdistnew, r=2) -> FNNs
 
-    Compute the amount of false nearest neighbors `FNNs` [^Hegger1999], when adding another component
-    to a given (vector-) time series. This new component is the `τ`-lagged version
-    of a univariate time series. `NNdist` is storing the distances of the nearest
-    neighbor for all considered fiducial points and `NNdistnew` is storing the
-    distances of the nearest neighbor for each fiducial point in one embedding
-    dimension higher using a given `τ`. The obligatory threshold `r` is by default
-    set to 2.
-
+Compute the amount of false nearest neighbors `FNNs` [^Hegger1999], when adding another component
+to a given (vector-) time series. This new component is the `τ`-lagged version
+of a univariate time series. `NNdist` is storing the distances of the nearest
+neighbor for all considered fiducial points and `NNdistnew` is storing the
+distances of the nearest neighbor for each fiducial point in one embedding
+dimension higher using a given `τ`. The obligatory threshold `r` is by default
+set to 2.
 """
 function fnn_embedding_cycle(NNdist, NNdistnew, r::Real=2)
     @assert length(NNdist) == length(NNdistnew) "Both input vectors need to store the same number of distances."

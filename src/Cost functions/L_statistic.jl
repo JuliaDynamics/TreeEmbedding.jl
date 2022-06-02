@@ -6,33 +6,34 @@ import Base.push!
 """
     L_statistic <: AbstractLoss
 
-    Constructor for the L-statistic loss function based on Uzal et al.[^Uzal2011]. Here
-    we consider the decrease of the L-statistic `ΔL` in between embedding cycles,
-    according to Kraemer et al.[^Kraemer2021] ([`pecuzal_embedding`](@ref)).
+Constructor for the L-statistic loss function based on Uzal et al.[^Uzal2011]. Here
+we consider the decrease of the L-statistic `ΔL` in between embedding cycles,
+according to Kraemer et al.[^Kraemer2021] ([`pecuzal_embedding`](@ref)).
 
-    ## Fieldnames
-    * `threshold::Float`: A threshold for the tolerable `ΔL` decrease for the current
-      embedding. When `ΔL` exceeds this threshold in an embedding cycle the embedding
-      stops. Note that `ΔL` is a negative value therefore `threshold` must be a small
-      negative number.
-    * `KNN::Int`: the amount of nearest neighbors considered, in order to compute the
-      L-statistic, in particular `σ_k^2` (read algorithm description [`uzal_cost`]@ref).
-    * `tws::AbstractRange{Int}`: Customization of the sampling of the different time horizons
-      (T's), when computing Uzal's L-statistics. Here any kind of integer ranges (starting at 2)
-      are allowed.
-    * `samplesize::Real = 1.`: the fraction of all phase space points
-      to be considered in the computation of the L-statistic(s).
+## Fieldnames
+* `threshold::Float`: A threshold for the tolerable `ΔL` decrease for the current
+  embedding. When `ΔL` exceeds this threshold in an embedding cycle the embedding
+  stops. Note that `ΔL` is a negative value therefore `threshold` must be a small
+  negative number.
+* `KNN::Int`: the amount of nearest neighbors considered, in order to compute the
+  L-statistic, in particular `σ_k^2` (read algorithm description [`uzal_cost`]@ref).
+* `tws::AbstractRange{Int}`: Customization of the sampling of the different time horizons
+  (T's), when computing Uzal's L-statistics. Here any kind of integer ranges (starting at 2)
+  are allowed.
+* `samplesize::Real = 1.`: the fraction of all phase space points
+  to be considered in the computation of the L-statistic(s).
 
-    ## Defaults
-    * When calling `L_statistic()`, a L_statistic-object is created, which uses no
-      threshold and consideres 3 nearest neighbors for time horizons `tws=2:100`.
-    * When calling `L_statistic(threshold)`, a L_statistic-object is created, which uses
-      the given `threshold` and consideres 3 nearest neighbors for time horizons `tws=2:100`.
-    * When calling `L_statistic(threshold,KNN)`, a L_statistic-object is created, which uses
-      the given `threshold`, consideres `KNN` nearest neighbors for time horizons `tws=2:100`.
+## Defaults
+* When calling `L_statistic()`, a L_statistic-object is created, which uses no
+  threshold and consideres 3 nearest neighbors for time horizons `tws=2:100`.
+* When calling `L_statistic(threshold)`, a L_statistic-object is created, which uses
+  the given `threshold` and consideres 3 nearest neighbors for time horizons `tws=2:100`.
+* When calling `L_statistic(threshold,KNN)`, a L_statistic-object is created, which uses
+  the given `threshold`, consideres `KNN` nearest neighbors for time horizons `tws=2:100`.
 
-    [^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).
-    [^Uzal2011]: Uzal, L. C., Grinblat, G. L., Verdes, P. F. (2011). [Optimal reconstruction of dynamical systems: A noise amplification approach. Physical Review E 84, 016223](https://doi.org/10.1103/PhysRevE.84.016223).
+## References
+[^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).
+[^Uzal2011]: Uzal, L. C., Grinblat, G. L., Verdes, P. F. (2011). [Optimal reconstruction of dynamical systems: A noise amplification approach. Physical Review E 84, 016223](https://doi.org/10.1103/PhysRevE.84.016223).
 """
 struct L_statistic <: AbstractLoss
     threshold::AbstractFloat
@@ -99,33 +100,32 @@ end
 """
     uzal_cost_pecuzal_mcdts(Y1::Dataset, Y2::Dataset, Tw; kwargs...) → L_decrease
 
-    This function is based on the functionality of [`uzal_cost`](@ref), here
-    specifically tailored for the needs in the MCDTS (PECUZAL) algorithm.
-    Compute the L-statistics `L1` and `L2` for the input datasets `Y1` and `Y2` for
-    increasing time horizons `T = 1:Tw`. For each `T`, compute `L1` and `L2` and
-    decrease `L_decrease = L2 - L1`. If `L_decrease` is a negative value, then `Y2`
-    can be regarded as a "better" reconstruction that `Y1`. Break, when `L_decrease`
-    reaches the 1st local minima, since this will typically also be the global
-    minimum. Return the according minimum `L_decrease`-value.
+This function is based on the functionality of [`uzal_cost`](@ref), here
+specifically tailored for the needs in the MCDTS & PECUZAL algorithm(s).
+Compute the L-statistics `L1` and `L2` for the input datasets `Y1` and `Y2` for
+increasing time horizons `T = 1:Tw`. For each `T`, compute `L1` and `L2` and
+the decrease `L_decrease = L2 - L1`. If `L_decrease` is a negative value, then `Y2`
+can be regarded as a "better" reconstruction than `Y1`. Break, when `L_decrease`
+reaches the 1st local minimum, since this will typically also be the global
+minimum. Returns the according minimum `L_decrease`-value.
 
-    ## Keyword arguments
-
-    * `K = 3`: the amount of nearest neighbors considered, in order to compute σ_k^2
-      (read algorithm description).
-      If given a vector, minimum result over all `k ∈ K` is returned.
-    * `metric = Euclidean()`: metric used for finding nearest neigbhors in the input
-      state space trajectory `Y.
-    * `w = 1`: Theiler window (neighbors in time with index `w` close to the point,
-      that are excluded from being true neighbors). `w=0` means to exclude only the
-      point itself, and no temporal neighbors.
-    * `econ::Bool = false`: Economy-mode for L-statistic computation. Instead of
-      computing L-statistics for time horizons `2:Tw`, here we only compute them for
-      `2:2:Tw`.
-    * `tws::Range = 2:Tw`: Further customization of the sampling of the different T's.
-      While `econ=true` gives `tws = 2:2:Tw`, here any kind of interger ranges (starting at 2)
-      are allowed, up to `Tw`.
-    * `samplesize::Real = 1.0`: determine the fraction of all phase space points (=`length(Y)`)
-      to be considered (fiducial points v)
+## Keyword arguments
+* `K = 3`: the amount of nearest neighbors considered, in order to compute σ_k^2
+  (read algorithm description).
+  If given a vector, minimum result over all `k ∈ K` is returned.
+* `metric = Euclidean()`: metric used for finding nearest neigbhors in the input
+  state space trajectory `Y.
+* `w = 1`: Theiler window (neighbors in time with index `w` close to the point,
+  that are excluded from being true neighbors). `w=0` means to exclude only the
+  point itself, and no temporal neighbors.
+* `econ::Bool = false`: Economy-mode for L-statistic computation. Instead of
+  computing L-statistics for time horizons `2:Tw`, here we only compute them for
+  `2:2:Tw`.
+* `tws::Range = 2:Tw`: Further customization of the sampling of the different T's.
+  While `econ=true` gives `tws = 2:2:Tw`, here any kind of interger ranges (starting at 2)
+  are allowed, up to `Tw`.
+* `samplesize::Real = 1.0`: determine the fraction of all phase space points (=`length(Y)`)
+  to be considered (fiducial points v)
 """
 function uzal_cost_pecuzal_mcdts(Y::Dataset{D, ET}, Y_trial::Dataset{DT, ET}, Tw::Int;
         K::Int = 3, w::Int = 1, econ::Bool = false, tws::AbstractRange{Int} = 2:Tw,

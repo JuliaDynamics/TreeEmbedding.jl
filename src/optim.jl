@@ -22,20 +22,20 @@ abstract type AbstractLoss end
 """
     MCDTSOptimGoal <: AbstractMCDTSOptimGoal
 
-    Constructor, which handles the loss-/objective function `Γ` and the delay
-    pre-selection statistic `Λ` MCDTS uses.
+Constructor, which handles the loss-/objective function `Γ` and the delay
+pre-selection statistic `Λ` MCDTS uses.
 
-    ## Fieldnames
-    * `Γ::AbstractLoss`: Chosen loss-function, see the so far available
-      [`L_statistic`](@ref), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and
-      [`Prediction_error`](@ref).
-    * `Λ::AbstractDelayPreselection`: Chosen delay Pre-selection method, see the so
-      far available [`Continuity_function`](@ref) and [`Range_function`](@ref).
+## Fieldnames
+* `Γ::AbstractLoss`: Chosen loss-function, see the so far available
+  [`L_statistic`](@ref) (see also [`uzal_cost`](@ref)), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and
+  [`Prediction_error`](@ref).
+* `Λ::AbstractDelayPreselection`: Chosen delay Pre-selection method, see the so
+  far available [`Continuity_function`](@ref) and [`Range_function`](@ref).
 
-    ## Defaults
-    * When calling `MCDTSOptimGoal()`, a optimization goal struct is created, which
-      uses the [`L_statistic`](@ref) as a loss function `Γ` and the [`Continuity_function`](@ref)
-      as a delay Pre-selection method Λ.
+## Defaults
+* When calling `MCDTSOptimGoal()`, a optimization goal struct is created, which
+  uses the [`L_statistic`](@ref) as a loss function `Γ` and the [`Continuity_function`](@ref)
+  as a delay Pre-selection method Λ.
 """
 struct MCDTSOptimGoal <: AbstractMCDTSOptimGoal
     Γ::AbstractLoss

@@ -13,32 +13,32 @@ abstract type AbstractLocalPredictionMethod{T} <: AbstractPredictionMethod end
 """
     Prediction_error <: AbstractLoss
 
-    Constructor for the Prediction_error loss function.
+Constructor for the Prediction_error loss function.
 
-    ## Fieldnames
-    * `PredictionType::MCDTSpredictionType`: Determines the prediction type by
-      setting a prediction-method and the way the prediction error is measured,
-      see [`MCDTSpredictionType`](@ref).
-    * `threshold::Float`: A threshold for the sufficient minimum prediction error
-      for the current embedding. When the prediction error, specified in
-      `PredictionType`, falls below this threshold in an embedding cycle the
-      embedding stops.
-    * `samplesize::Real = 1.`: the fraction of all phase space points
-      to be considered in the computation of the prediction error under the given
-      `PredictionType`.
-    * `error_weights::Vector{Real} = [1 1]`: The weights for determining the prediction 
-      error. The first element of this Vector is the weight for the insample prediction
-      error and the second elements corresponds to the weight for the out-of-sample
-      prediction error. By default only the out-of-sample error will be used (i.e. equal 
-      weights [1 1]). Since the out-of-sample prediction error is generally larger than 
-      the insample prediction error it may make sense to tune these wheight-parameters.
-      For specifying the prediction horizon see [`local_model`](@ref)  
+## Fieldnames
+* `PredictionType::MCDTSpredictionType`: Determines the prediction type by
+    setting a prediction-method and the way the prediction error is measured,
+    see [`MCDTSpredictionType`](@ref).
+* `threshold::Float`: A threshold for the sufficient minimum prediction error
+    for the current embedding. When the prediction error, specified in
+    `PredictionType`, falls below this threshold in an embedding cycle the
+    embedding stops.
+* `samplesize::Real = 1.`: the fraction of all phase space points
+    to be considered in the computation of the prediction error under the given
+    `PredictionType`.
+* `error_weights::Vector{Real} = [1 1]`: The weights for determining the prediction 
+    error. The first element of this Vector is the weight for the insample prediction
+    error and the second elements corresponds to the weight for the out-of-sample
+    prediction error. By default only the out-of-sample error will be used (i.e. equal 
+    weights [1 1]). Since the out-of-sample prediction error is generally larger than 
+    the insample prediction error it may make sense to tune these wheight-parameters.
+    For specifying the prediction horizon see [`local_model`](@ref)  
 
-    ## Defaults
-    * When calling `Prediction_error()`, a Prediction_error-object is created,
-      which uses the threshold 0, i.e. no threshold, a zeroth-order predictor
-      (see [`MCDTSpredictionType`](@ref), [`PredictionLoss`](@ref) &
-      [`local_model`](@ref)) and a full phase space sample (samplesize=1).
+## Defaults
+* When calling `Prediction_error()`, a Prediction_error-object is created,
+    which uses the threshold 0, i.e. no threshold, a zeroth-order predictor
+    (see [`MCDTSpredictionType`](@ref), [`PredictionLoss`](@ref) &
+    [`local_model`](@ref)) and a full phase space sample (samplesize=1).
 """
 struct Prediction_error <: AbstractLoss
     PredictionType::AbstractMCDTSpredictionType
@@ -61,19 +61,19 @@ Prediction_error() = Prediction_error(MCDTSpredictionType())
 """
     MCDTSpredictionType <: AbstractMCDTSpredictionType
 
-    Constructor, which determines the way how predictions are made technically.
+Constructor, which determines the way how predictions are made technically.
 
-    ## Fieldnames
-    * `loss::AbstractPredictionLoss`: Indicates the way of computing the prediction error.
-       See [`PredictionLoss`](@ref) for information on how to construct this object.
-    * `method::AbstractPredictionMethod`: The method based on the state space reconstruction,
-       which makes the actual prediction. See [`local_model`](@ref)
+## Fieldnames
+* `loss::AbstractPredictionLoss`: Indicates the way of computing the prediction error.
+    See [`PredictionLoss`](@ref) for information on how to construct this object.
+* `method::AbstractPredictionMethod`: The method based on the state space reconstruction,
+    which makes the actual prediction. See [`local_model`](@ref).
 
-    ## Default settings
-    * When calling `MCDTSpredictionType()` a MCDTSpredictionType-object is constructed
-      with a `local_zeroth`-predictor [`local_model`](@ref), using 2 nearest neighbors
-      and a 1-step-ahead-prediction. The loss-function is the root mean squared prediction
-      error over all components [`PredictionLoss`](@ref).
+## Default settings
+* When calling `MCDTSpredictionType()` a MCDTSpredictionType-object is constructed
+    with a `local_zeroth`-predictor [`local_model`](@ref), using 2 nearest neighbors
+    and a 1-step-ahead-prediction. The loss-function is the root mean squared prediction
+    error over all components [`PredictionLoss`](@ref).
 """
 struct MCDTSpredictionType <: AbstractMCDTSpredictionType
     loss::AbstractPredictionLoss
@@ -88,25 +88,25 @@ end
 """
     PredictionLoss <: AbstractPredictionLoss
 
-    Constructor, which indicates the way of computing the prediction error. This
-    object is used for the constructor, which determines the way how predictions are
-    made methodologically [`MCDTSpredictionType`](@ref).
+Constructor, which indicates the way of computing the prediction error. This
+object is used for the constructor, which determines the way how predictions are
+made methodologically [`MCDTSpredictionType`](@ref).
 
-    ## Fieldnames
-    * `type::Int` is an integer, which encodes the type of prediction error:
+## Fieldnames
+* `type::Int` is an integer, which encodes the type of prediction error:
 
-    - For `type = 1` the root mean squared prediction error over the first component,
-      i.e. the timeseries, which needs to be predicted, is used. (default)
-    - For `type = 2` the root mean squared prediction error over all components
-      (dimensionality of the state space) is used.
-    - For `type = 3` the mean Kullback-Leibler Distance of the predicted and the true
-      values of the first component, i.e. the timeseries, which needs to be predicted, is used.
-    - For `type = 4` the mean Kullback-Leibler Distance of the predicted and the true
-      values over all components (dimensionality of the state space) is used.
+- For `type = 1` the root mean squared prediction error over the first component,
+    i.e. the timeseries, which needs to be predicted, is used. (default)
+- For `type = 2` the root mean squared prediction error over all components
+    (dimensionality of the state space) is used.
+- For `type = 3` the mean Kullback-Leibler Distance of the predicted and the true
+    values of the first component, i.e. the timeseries, which needs to be predicted, is used.
+- For `type = 4` the mean Kullback-Leibler Distance of the predicted and the true
+    values over all components (dimensionality of the state space) is used.
 
-    ## Defaults
-    * When calling `PredictionLoss()` a PredictionLoss-object is constructed with
-      fieldname `type = 1` (≡root mean squared prediction error over all components)
+## Defaults
+* When calling `PredictionLoss()` a PredictionLoss-object is constructed with
+    fieldname `type = 1` (≡root mean squared prediction error over all components)
 """
 struct PredictionLoss{t} <: AbstractPredictionLoss{t}
     type::Int
@@ -121,27 +121,27 @@ end
 """
     local_model <: AbstractLocalPredictionMethod
 
-    Constructor, which indicates the local state space prediction model.
+Constructor, which indicates the local state space prediction model.
 
-    ## Fieldnames
-    * `method::String`: Could be `"zeroth"` (averaged `Tw`-step-ahead image of the
-     `KNN`-nearest neighbors) or `"linear"` (local linear regression on the
-     `KNN`-nearest neighbors).
-    * `KNN::Int`: The number of considered nearest neighbors.
-    * `Tw_out::Int` : The prediction horizon in sampling units for the out-of-sample prediction.
-    * `Tw_in::Int` : The prediction horizon in sampling units for the in-sample prediction.
-    * `trials::Int` : The number of different out-of-sample prediction trials.
+## Fieldnames
+* `method::String`: Could be `"zeroth"` (averaged `Tw`-step-ahead image of the
+    `KNN`-nearest neighbors) or `"linear"` (local linear regression on the
+    `KNN`-nearest neighbors).
+* `KNN::Int`: The number of considered nearest neighbors.
+* `Tw_out::Int` : The prediction horizon in sampling units for the out-of-sample prediction.
+* `Tw_in::Int` : The prediction horizon in sampling units for the in-sample prediction.
+* `trials::Int` : The number of different out-of-sample prediction trials.
 
-    ## Defaults
-    * When calling `local_model()` a local_model-object is constructed with a zeroth
-      order prediction scheme, 2 nearest neighbors, a 1-step-ahead in-sample prediction, 
-      a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
-    * When calling `local_model(method)` a local_model-object is constructed with a
-      `method`-prediction scheme, 2 nearest neighbors, a 1-step-ahead in-sample prediction, 
-      a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
-    * When calling `local_model(method,KNN)` a local_model-object is constructed with a
-     `method`-prediction scheme, `KNN` nearest neighbors, a 1-step-ahead in-sample prediction, 
-     a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
+## Defaults
+* When calling `local_model()` a local_model-object is constructed with a zeroth
+    order prediction scheme, 2 nearest neighbors, a 1-step-ahead in-sample prediction, 
+    a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
+* When calling `local_model(method)` a local_model-object is constructed with a
+    `method`-prediction scheme, 2 nearest neighbors, a 1-step-ahead in-sample prediction, 
+    a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
+* When calling `local_model(method,KNN)` a local_model-object is constructed with a
+    `method`-prediction scheme, `KNN` nearest neighbors, a 1-step-ahead in-sample prediction, 
+    a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
 """
 struct local_model{m} <: AbstractLocalPredictionMethod{m}
     method::String
@@ -215,21 +215,20 @@ end
     insample_prediction(pred_meth::AbstractPredictionMethod, Y::AbstractDataset{D, ET};
             K::Int = 3, w::Int = 1, Tw::Int = 1, metric = Euclidean()) → prediction
 
-    Compute an in-sample - not iterated - `Tw`-time-steps-ahead prediction of the trajectory `Y`, using
-    the prediction method `pred_meth`. `w` is the Theiler window and `K` the nearest
-    neighbors used.
+Compute an in-sample - not iterated - `Tw`-time-steps-ahead prediction of the trajectory `Y::Dataset` ([`Dataset`](@ref)), 
+using the prediction method `pred_meth` [`local_model`](@ref).
 
-    * `Y`: Dataset (Nt x N_embedd)
-    * `K`: Nearest Neighbours
-    * `w`: Theiler window
-    * `Tw`: Prediction horizon
-    * `metric`: Metric for NN search
-    * `samplesize`: fraction of considered points in the trajectory
-    * `i_cycle`: Which embedding cycling we are predicting for (for future use)
+## Keyword arguments
+* `K`: Nearest Neighbours
+* `w`: Theiler window
+* `Tw`: Prediction horizon
+* `metric`: Metric for NN search
+* `samplesize`: fraction of considered points in the trajectory
+* `i_cycle`: Which embedding cycling we are predicting for (for future use)
 
-    Note: In case of a local linear prediction method `pred_meth` the number of
-    nearest neighbours used gets adapted to 2(D+1) - with D the embedding dimension,
-    if the provided `K` is lower than that number.")
+Note: In case of a local linear prediction method `pred_meth` the number of
+nearest neighbours used gets adapted to 2(D+1) - with D the embedding dimension,
+if the provided `K` is lower than that number.
 """
 function insample_prediction(pred_meth::AbstractLocalPredictionMethod, Y::AbstractDataset{D, ET}; 
     samplesize::Real= 1, w::Int = 1, metric = Euclidean(), i_cycle::Int=1, kwargs...) where {D, ET}
@@ -321,20 +320,19 @@ end
     out_of_sample_prediction(pred_meth::AbstractLocalPredictionMethod, pred_loss::AbstractPredictionLoss, Y::AbstractDataset{D, ET};
             K::Int = 3, w::Int = 1, Tw::Int = 1, metric = Euclidean()) → average_cost
 
-    Compute an out-of-sample `Tw`-time-steps-ahead prediction of the data `Y`, using
-    the prediction method `pred_meth`. `w` is the Theiler window and `K` the nearest
-    neighbors used.
+Compute an out-of-sample `Tw`-time-steps-ahead prediction of the data `Y::Dataset` ([`Dataset`](@ref)) using
+the prediction method `pred_meth` [`local_model`](@ref).
 
-    * `Y`: Dataset (Nt x N_embedd)
-    * `K`: Nearest Neighbours
-    * `w`: Theiler window
-    * `Tw`: Prediction horizon
-    * `metric`: Metric for NN search
-    * `i_cycle`: Which embedding cycling we are predicting for (for future use)
+## Keyword arguments
+* `K`: Nearest Neighbours
+* `w`: Theiler window
+* `Tw`: Prediction horizon
+* `metric`: Metric for NN search
+* `i_cycle`: Which embedding cycling we are predicting for (for future use)
 
-    Note: In case of a local linear prediction method `pred_meth` the number of
-    nearest neighbours used gets adapted to 2(D+1) - with D the embedding dimension,
-    if the provided `K` is lower than that number.")
+Note: In case of a local linear prediction method `pred_meth` the number of
+nearest neighbours used gets adapted to 2(D+1) - with D the embedding dimension,
+if the provided `K` is lower than that number.
 """
 function out_of_sample_prediction(pred_meth::AbstractLocalPredictionMethod, pred_loss::AbstractPredictionLoss, 
         Y::AbstractDataset{D, ET}; w::Int = 1, metric = Euclidean(), i_cycle::Int=1, kwargs...) where {D, ET}
@@ -427,20 +425,25 @@ end
 """
     local_zeroth_prediction(Y::Dataset, K::Int = 5; kwargs...) → x_pred, e_expect
 
-    Perform a "zeroth" order prediction for the time horizon `Tw` (default = 1). Based
-    on `K` nearest neighbours of the last point of the given trajectory `Y`, the
-    `Tw`-step ahead prediction is simply the mean of the images of these `K`-nearest
-    neighbours. The output `x_pred` is, thus, the `Tw`-step ahead prediction vector.
-    The function also returns `e_expect`, the expected error on the prediction `x_pred`,
-    computed as the mean of the RMS-errors of all `K`-neighbours-errors.
+Perform a "zeroth" order prediction for the time horizon `Tw` (default = 1) [^Kantz2004]. 
+Based on `K` nearest neighbours of the last point of the given trajectory `Y::Dataset` 
+([`Dataset`](@ref)), the `Tw`-step ahead prediction is simply the mean of the images of these `K`-nearest
+neighbours. 
 
-    Keywords:
-    * `metric = Euclidean()`: Metric used for distance computation
-    * `theiler::Int = 1`: Theiler window for excluding serially correlated points from
-       the nearest neighbour search.
-    * `Tw::Int = 1`: The prediction time in sampling units. If `Tw > 1`, a multi-step
-      prediction is performed.
+## Returns
+* `x_pred::Vector`: the `Tw`-step ahead prediction vector.
+* `e_expect::Vector`: the expected error on the prediction `x_pred`,
+computed as the mean of the RMS-errors of all `K`-neighbours-errors.
 
+## Keyword arguments
+* `metric = Euclidean()`: Metric used for distance computation
+* `theiler::Int = 1`: Theiler window for excluding serially correlated points from
+    the nearest neighbour search.
+* `Tw::Int = 1`: The prediction time in sampling units. If `Tw > 1`, a multi-step
+    prediction is performed.
+
+## References
+[^Kantz2004]: Holger Kantz and Thomas Schreiber (2004). [Nonlinear Time Series Analysis. Cambridge nonlinear science series. Cambridge University Press].
 """
 function local_zeroth_prediction(Y::Dataset{D,T}, K::Int = 5;
     metric = Euclidean(), theiler::Int = 1, Tw::Int = 1) where {D,T}
@@ -468,15 +471,17 @@ end
 
 """
     iterated_local_zeroth_prediction(Y::Dataset, K::Int = 5, Tw::Int = 2; kwargs...) → Y_predict
-    Perform an iterated one step forecast over `Tw` time steps using the local zeroth
-    prediction algorithm. `Y_predict` is a Vector of dimension like `Y`.
 
-    Keywords:
-    * `metric = Euclidean()`: Metric used for distance computation
-    * `theiler::Int = 1`: Theiler window for excluding serially correlated points from
-       the nearest neighbour search.
-    * `verbose::Bool = false`: When set to `true`, the function prints the actual time
-      step, which it is computing.
+Perform an iterated one step forecast over `Tw` time steps using the local zeroth
+prediction algorithm [`local_zeroth_prediction`](@ref). `Y_predict` is a Vector of 
+dimension like `Y`.
+
+## Keyword arguments
+* `metric = Euclidean()`: Metric used for distance computation
+* `theiler::Int = 1`: Theiler window for excluding serially correlated points from
+    the nearest neighbour search.
+* `verbose::Bool = false`: When set to `true`, the function prints the actual time
+    step, which it is computing.
 """
 function iterated_local_zeroth_prediction(Y::Dataset{D,T}, K::Int = 5, Tw::Int = 2;
     metric = Euclidean(), theiler::Int = 1, verbose::Bool = false) where {D,T}
@@ -500,19 +505,24 @@ end
 """
     local_linear_prediction(Y::Dataset, K::Int = 5; kwargs...) → x_pred, e_expect
 
-    Perform a prediction for the time horizon `Tw` (default = 1) by a locally linear
-    fit. Based on `K` nearest neighbours of the last point of the given trajectory
-    `Y`, we fit a linear model to these points and their `Tw`-step ahead images. The
-    output `x_pred` is, thus, the `Tw`-step ahead prediction vector.
-    The function also returns `e_expect`, the expected error on the prediction `x_pred`,
-    computed as the mean of the RMS-errors of all `K`-neighbours-errors.
+Perform a prediction for the time horizon `Tw` (default = 1) by a locally linear
+fit [^Farmer1987]. Based on `K` nearest neighbours of the last point of the given trajectory
+`Y`, we fit a linear model to these points and their `Tw`-step ahead images. 
 
-    Keywords:
-    * `metric = Euclidean()`: Metric used for distance computation
-    * `theiler::Int = 1`: Theiler window for excluding serially correlated points from
-       the nearest neighbour search.
-    * `Tw::Int = 1`: The prediction time in sampling units. If `Tw > 1`, a multi-step
-      prediction is performed.
+## Returns
+* `x_pred::Vector`: the `Tw`-step ahead prediction vector.
+* `e_expect::Vector`: the expected error on the prediction `x_pred`,
+computed as the mean of the RMS-errors of all `K`-neighbours-errors.
+
+## Keywords arguments
+* `metric = Euclidean()`: Metric used for distance computation
+* `theiler::Int = 1`: Theiler window for excluding serially correlated points from
+    the nearest neighbour search.
+* `Tw::Int = 1`: The prediction time in sampling units. If `Tw > 1`, a multi-step
+    prediction is performed.
+
+## References
+[^Farmer1987]: Farmer, J.D., Sidorowich, J.J. (1987). [Predicting chaotic time series. Phys. Rev. Lett 59, 845–848 (1987)](https://doi.org/10.1103/PhysRevLett.59.845).
 """
 function local_linear_prediction(Y::Dataset{D,T}, K::Int = 5;
     metric = Euclidean(), theiler::Int = 1, Tw::Int = 1) where {D,T}
@@ -570,15 +580,15 @@ end
 """
     iterated_local_linear_prediction(Y::Dataset, K::Int = 5, Tw::Int = 2; kwargs...) → Y_predict
 
-    Perform an iterated one step forecast over `Tw` time steps using the local linear
-    prediction algorithm. `Y_predict` is a Vector of dimension like `Y`.
+Perform an iterated one step forecast over `Tw` time steps using the local linear
+prediction algorithm [`local_linear_prediction`](@ref). `Y_predict` is a Vector of dimension like `Y`.
 
-    Keywords:
-    * `metric = Euclidean()`: Metric used for distance computation
-    * `theiler::Int = 1`: Theiler window for excluding serially correlated points from
-       the nearest neighbour search.
-    * `verbose::Bool = false`: When set to `true`, the function prints the actual time
-      step, which it is computing.
+## Keyword arguments
+* `metric = Euclidean()`: Metric used for distance computation
+* `theiler::Int = 1`: Theiler window for excluding serially correlated points from
+    the nearest neighbour search.
+* `verbose::Bool = false`: When set to `true`, the function prints the actual time
+    step, which it is computing.
 """
 function iterated_local_linear_prediction(Y::Dataset{D,T}, K::Int = 5, Tw::Int = 2;
     metric = Euclidean(), theiler::Int = 1, verbose::Bool = false) where {D,T}

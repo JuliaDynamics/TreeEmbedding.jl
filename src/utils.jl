@@ -19,7 +19,7 @@ function compute_KL_divergence(a::Vector{T}, b::Vector{T}) where {T}
 end
 
 """
-    Return the local maxima of the given time series s and its indices
+    Return the local maxima of the given time series s and its indices.
 """
 function get_maxima(s::Vector{T}) where {T}
     maximas = T[]
@@ -61,14 +61,20 @@ end
 """
     compute_delta_L(s, τs, (js,) T_max; KNN = 3, w = 1, metric = Euclidean) → ΔL
 
-    Compute the overall L-decrease `ΔL` of a given embedding of the time series
-    `s::Vector` with the delay values `τs` up to a maximum `T`-value `T_max`. We
-    respect the Theiler window `w`, the chosen `metric` and the number of considered
-    nearest neighbors `KNN`. It is also possible to compute `ΔL` for a multivariate
-    input `Y::Dataset`. Then one additionally needs to supply a vector `js`, which
-    lists the chosen time series corresponding to the given delay values in `τs`.
-    This is similar to the procedure in [`genembed`]@ref. The computations are based
-    on z-standardized input for ensuring comparability.
+Compute the overall L-decrease `ΔL` of a given embedding of the time series
+`s::Vector` with the delay values `τs` up to a maximum `T`-value `T_max`. This 
+is based on Uzal's L-statistic [^Uzal2011] [`uzal_cost_pecuzal_mcdts`](@ref) & 
+[`uzal_cost`](@ref). 
+We respect the Theiler window `w`, the chosen `metric` and the number of considered
+nearest neighbors `KNN`. 
+It is also possible to compute `ΔL` for a multivariate
+input `Y::Dataset`. Then one additionally needs to supply a vector `js`, which
+lists the chosen time series corresponding to the given delay values in `τs`.
+This is similar to the procedure in [`genembed`]@ref. The computations are based
+on z-standardized input for ensuring comparability.
+
+## References
+[^Uzal2011]: Uzal, L. C., Grinblat, G. L., Verdes, P. F. (2011). [Optimal reconstruction of dynamical systems: A noise amplification approach. Physical Review E 84, 016223](https://doi.org/10.1103/PhysRevE.84.016223).
 """
 function compute_delta_L(s::Vector{T}, τs::Vector{Int}, T_max::Int;
         KNN::Int = 3, w::Int = 1, metric = Euclidean(), tws::AbstractRange{Int} = 2:T_max

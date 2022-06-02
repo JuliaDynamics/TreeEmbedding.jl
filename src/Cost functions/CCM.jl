@@ -7,28 +7,29 @@
 """
     CCM_ρ <: AbstractLoss
 
-    Constructor for the CCM_ρ loss function (correlation coefficient of the
-    convergent cross mapping) based on Sugihara et al.[^Sugihara2012], see also
-    [`ccm`](@ref). In this case MCDTS tries to maximize the correlation coefficient
-    of the convergent cross mapping from the input `data` and `Y_CCM`, the time
-    series CCM should cross map to from `data` (see [`mcdts_embedding`](@ref)).
+Constructor for the CCM_ρ loss function (correlation coefficient of the
+convergent cross mapping) based on Sugihara et al.[^Sugihara2012], see also
+[`ccm`](@ref). In this case MCDTS tries to maximize the correlation coefficient
+of the convergent cross mapping from the input data `Y_CCM` and the time
+series (`timeseries`) CCM should cross map to (see [`mcdts_embedding`](@ref)).
 
-    ## Fieldnames
-    * `timeseries`: The time series CCM should cross map to.
-    * `threshold:: = 1: A threshold for the sufficient correlation of the
-      cross-mapped values and the true values from `Y_CMM` for the current embedding.
-      When the correlation coefficient exeeds this threshold in an embedding cycle
-      the embedding stops.
-    * `samplesize::Real = 1.`: the fraction of all phase space points
-     to be considered in the computation of CCM_ρ.
+## Fieldnames
+* `timeseries`: The time series CCM should cross map to.
+* `threshold:: = 1: A threshold for the sufficient correlation of the
+    cross-mapped values and the true values from `Y_CMM` for the current embedding.
+    When the correlation coefficient exeeds this threshold in an embedding cycle
+    the embedding stops.
+* `samplesize::Real = 1.`: the fraction of all phase space points
+    to be considered in the computation of CCM_ρ.
 
-    ## Defaults
-    * When calling `CCM_ρ(timeseries)`, a CCM_ρ-object is created, storing
-      `timeseries`, which is considered to be causally depended and the
-      `threshold=1` is used, i.e. no threshold, since the correlation coefficient
-      can not exceed 1.
+## Defaults
+* When calling `CCM_ρ(timeseries)`, a CCM_ρ-object is created, storing
+    `timeseries`, which is considered to be causally depended and the
+    `threshold=1` is used, i.e. no threshold, since the correlation coefficient
+    can not exceed 1.
 
-    [^Sugihara2012]: Sugihara et al., [Detecting Causality in Complex Ecosystems. Science 338, 6106, 496-500](https://doi.org/10.1126/science.1227079)
+## References
+[^Sugihara2012]: Sugihara et al., [Detecting Causality in Complex Ecosystems. Science 338, 6106, 496-500](https://doi.org/10.1126/science.1227079).
 """
 struct CCM_ρ <: AbstractLoss
     timeseries::Vector
@@ -80,30 +81,32 @@ end
 """
     ccm(X, y; kwargs...) → ρ, y_hat, y_idx
 
-    Compute the convergent crossmapping (CCM) [^Sugihara2012] of a
-    vector time series `X` (an embedded time series `x`) on the time series `y`
-    NOTE: 'X' and 'y' must have the same length and you have to make sure that
-    'y' starts at the same time index as 'X' does. - When using [`genembed`](@ref)
-    with negative delays to construct `X` from `x`, which is mandatory here, then
-    'y' needs to be shifted by the largest negative delay value, which has been
-    used to construct `X`.
+Compute the convergent crossmapping (CCM) [^Sugihara2012] of a
+vector time series `X` (an embedded time series `x`) on the time series `y`
+NOTE: 'X' and 'y' must have the same length and you have to make sure that
+'y' starts at the same time index as 'X' does. - When using [`genembed`](@ref)
+with negative delays to construct `X` from `x`, which is mandatory here, then
+'y' needs to be shifted by the largest negative delay value, which has been
+used to construct `X`.
 
-    Returns the correlation coefficient of `y` and its predicted values for `y_hat`,
-    based on the nearest neighbour structure of `X`. `y_idx` are the corresponding
-    indices, which have been used for computing `y_hat`.
-    It is said that 'y' causes 'x', if ρ increases with increasing time series
-    length AND ρ is "quite high".
+## Returns
+* `ρ`: The correlation coefficient of `y` and its predicted values `y_hat`. 
+    It is said that 'y' causes 'x', if ρ increases with increasing time series length AND ρ is "quite high".
+* `y_hat`: The cross mapped estimates of `y` based on the nearest neighbour structure of `X`.
+* `y_idx`: The corresponding indices, which have been used for computing `y_hat`.
 
-    Keyword arguments:
-    *`metric = Euclidean()`: The metric for vector distance computation.
-    *`w::Int = 1`: The Theiler window in sampling units.
-    *`lags::Array = [0]`: The lag for the cross mapping, in order to detect time lagged
-                          causal relationships. The output ρ is an array of size
-                          `length(lags)`, the output Y_hat is the one corresponding
-                          to a lag of zero.
-    *`samplesize::Real = 0.1`: fraction of all phase space points (=`length(X)`)
-                                to be considered (fiducial points v)
-
+## Keyword arguments:
+* `metric = Euclidean()`: The metric for vector distance computation.
+* `w::Int = 1`: The Theiler window in sampling units.
+* `lags::Array = [0]`: The lag for the cross mapping, in order to detect time lagged
+                        causal relationships. The output ρ is an array of size
+                        `length(lags)`, the output Y_hat is the one corresponding
+                        to a lag of zero.
+*`samplesize::Real = 0.1`: fraction of all phase space points (=`length(X)`)
+                            to be considered (fiducial points v)
+                            
+## References
+[^Sugihara2012]: Sugihara et al., [Detecting Causality in Complex Ecosystems. Science 338, 6106, 496-500](https://doi.org/10.1126/science.1227079).
 """
 function ccm(X::Dataset{D,T},Y::Vector{T}; metric = Euclidean(), w::Int = 1,
     lags::AbstractArray = [0], samplesize::Real = 1.) where {D,T<:Real}

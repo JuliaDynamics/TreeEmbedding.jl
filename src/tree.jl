@@ -8,12 +8,12 @@ abstract type AbstractTreeElement end
 """
     mutable struct Root <: AbstractTreeElement
 
-    The 'start'/root of Tree. Each node contains its children. The root contains the starting branches/nodes.
-    For initialization type `r = Root()`.
+The 'start'/root of Tree. Each node contains its children. The root contains the starting branches/nodes.
+For initialization type `r = Root()`.
 
-    ## Fieldnames:
-    * `children::Union{Array{Node,1},Nothing}`: The first nodes of the tree.
-    * `Lmin`; Is the global minimum of the cumulative ΔL statistic found so far.
+## Fieldnames:
+* `children::Union{Array{Node,1},Nothing}`: The first nodes of the tree.
+* `Lmin`; Is the global minimum of the cumulative ΔL statistic found so far.
 """
 mutable struct Root <: AbstractTreeElement
     children
@@ -42,14 +42,13 @@ abstract type AbstractEmbeddingPars end
 """
     EmbeddingPars{S,T}
 
-`EmbeddingPars` save information of a single embedding cycle. 
+`EmbeddingPars` saves information of a single embedding cycle. 
 
-# Fields
-
-    * `τ`: delay 
-    * `t`: which of the possibly multivariate time series is used at this embedding step 
-    * `L`: value of loss function 
-    * `temp`: (optional) additional information saved for later computation
+## Fieldnames:
+* `τ`: delay 
+* `t`: which of the possibly multivariate time series is used at this embedding step 
+* `L`: value of loss function 
+* `temp`: (optional) additional information saved for later computation
 
 """
 Base.@kwdef mutable struct EmbeddingPars{S,T} <: AbstractEmbeddingPars 
@@ -73,13 +72,13 @@ Base.show(io::IO, e::EmbeddingPars) = string("τ=",τ(e),", t=",t(e),", L=",L(e)
 """
     mutable struct Node{T}
 
-    A node of the tree. Each node contains its children and information about the current embedding.
+A node of the tree. Each node contains its children and information about the current embedding.
 
-    ## Fieldnames:
-    * `embedding_pars::EmbeddingPars`: saves delay value, time series number and value of loss funciton, see `EmbeddingPars`. 
-    * `τs::Array{Int,1}`: The complete vector with all τs chosen along this path up until this node
-    * `ts::Array{Int,1}`: The complete vector which of the possibly multivariate time series is used at each embedding step i
-    * `children::Union{Array{Node,1},Nothing}`: The children of this node
+## Fieldnames:
+* `embedding_pars::EmbeddingPars`: saves delay value, time series number and value of loss funciton, see `EmbeddingPars`. 
+* `τs::Array{Int,1}`: The complete vector with all τs chosen along this path up until this node
+* `ts::Array{Int,1}`: The complete vector which of the possibly multivariate time series is used at each embedding step i
+* `children::Union{Array{Node,1},Nothing}`: The children of this node
 """
 mutable struct Node{T} <: AbstractTreeElement
     embedding_pars::T
@@ -131,22 +130,22 @@ end
 
 """
     next_embedding(n::Node, optimalg::AbstractMCDTSOptimGoal, Ys::Dataset{D, T},
-                            w::Int, τs; kwargs...) → τ_pot, ts_pot, L_pot, flag
+                            w::Int, τs; kwargs...) → embedding_pars, flag
 
-    Performs the next embedding step. For the actual embedding contained in tree
-    leaf `n` compute as many statistics determined by `optimalg.Λ`
-    (see [`MCDTSOptimGoal`](@ref)) as there are time series in the Dataset
-    `Ys` for a range of possible delays `τs`. Return the values for the best delay
-    `τ_pot`, its corresponding time series index `ts_pot` the according Loss-value
-    `L_pot` and `flag`, following the minimization of the Loss determined by
-    `optimalg.Γ`.
+Performs the next embedding step. For the actual embedding contained in tree
+leaf `n` compute as many statistics determined by `optimalg.Λ`
+(see [`MCDTSOptimGoal`](@ref)) as there are time series in the Dataset
+`Ys` for a range of possible delays `τs`. Return the values for the best delay
+`τ_pot`, its corresponding time series index `ts_pot` the according Loss-value
+`L_pot` and `flag`, following the minimization of the Loss determined by
+`optimalg.Γ`.
 
-    ## Keyword arguments
-    * See [`mcdts_embedding`](@ref) for a list of all keywords.
+## Keyword arguments
+* See [`mcdts_embedding`](@ref) for a list of all keywords.
 
-    ## Returns
-    * `embedding_pars::Vector{EmbeddingPars}`: Next delays, indices of time series and L statisitic
-    * `flag`: Did the embedding converge? i.e. L can not be further minimized anymore
+## Returns
+* `embedding_pars::Vector{EmbeddingPars}`: Next delays, indices of time series and L statisitic.
+* `flag::Bool`: Did the embedding converge? -> i.e. L can not be further minimized anymore.
 
 """
 function next_embedding(n::Node, optimalg::AbstractMCDTSOptimGoal, Ys::Union{Dataset{D,T},Vector{T}},
@@ -174,12 +173,12 @@ end
 """
     choose_next_node(n::Union{Node,Root}, func, Lmin_global, i_trial::Int=1)
 
-    Returns one of the children of based on the function `func(Ls)->i_node`,
-    Lmin_global is the best L value so far in the optimization process, if any of
-    the input Ls to choose from is smaller than it, it is always chosen.
-    `choose_mode` is only relevant for the first embedding step right now: it
-    determines if the first step is chosen uniform (`choose_mode==0`) or with the
-    `func` (`choose_mode==1`).
+Returns one of the children of based on the function `func(Ls)->i_node`,
+Lmin_global is the best L value so far in the optimization process, if any of
+the input Ls to choose from is smaller than it, it is always chosen.
+`choose_mode` is only relevant for the first embedding step right now: it
+determines if the first step is chosen uniform (`choose_mode==0`) or with the
+`func` (`choose_mode==1`).
 """
 function choose_next_node(n::Node, func, Lmin_global=-Inf, choose_mode=0)
     N = N_children(n)
@@ -220,7 +219,7 @@ minL(Ls) = argmin(Ls)
 """
     softmaxL(Ls; β=1.5)
 
-    Returns an index with prob computed by a softmax of all Ls.
+Returns an index with prob computed by a softmax of all Ls.
 """
 function softmaxL(Ls; β=1.5)
     softmaxnorm = sum(exp.(-β*Ls))
@@ -241,20 +240,21 @@ end
     expand!(n::Union{Node,Root}, optimalg::AbstractMCDTSOptimGoal, data::Dataset,
                                             w::Int, delays, choose_mode; kwargs...)
 
-    This is one single rollout and backprop of the tree. For details please see
-    the accompanying paper [^Kraemer2021b].
+This is one single rollout and backprop of the tree. For details please see
+the accompanying paper [^Kraemer2021b].
 
-    * `n`: Starting node
-    * `optimalg::AbstractMCDTSOptimGoal`: Determines the delay preselection and
-      cost function (see [`MCDTSOptimGoal`](@ref)).
-    * `data`: data
-    * `w`: Theiler Window
-    * `delays = 0:100`: The possible time lags
-    * `choose_mode::Int=0`: Possibility for different modes of choosing the next
-      node based on which trial this is.
+## Arguments
+* `n`: Starting node
+* `optimalg::AbstractMCDTSOptimGoal`: Determines the delay preselection and
+    cost function (see [`MCDTSOptimGoal`](@ref)).
+* `data`: data
+* `w`: Theiler Window
+* `delays = 0:100`: The possible time lags
+* `choose_mode::Int=0`: Possibility for different modes of choosing the next
+    node based on which trial this is.
 
-    ## Keyword arguments
-    * See [`mcdts_embedding`](@ref) for a list of all keywords.
+## Keyword arguments
+* See [`mcdts_embedding`](@ref) for a list of all keywords.
 """
 function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{D,T},Vector{T}}, w::Int,
             delays::AbstractRange{DT} = 0:100, choose_mode::Int=0; max_depth::Int=20,
@@ -293,9 +293,9 @@ end
 """
     backprop!(n::Root,τs,ts,L_min)
 
-    Backpropagation of the tree spanned by all children in `n` (for this run).
-    All children-nodes L-values get set to the final value achieved in this run.
-    This function is ususally called be [`expand!`](@ref).
+Backpropagation of the tree spanned by all children in `n` (for this run).
+All children-nodes L-values get set to the final value achieved in this run.
+This function is ususally called be [`expand!`](@ref).
 """
 function backprop!(n::Root, τs, ts, L_min)
 
@@ -323,8 +323,8 @@ mc_delay(varargs...; kwargs...) = mcdts_embedding(varargs...; kwargs...)
 """
     best_embedding(r::Root)
 
-    Given the root `r` of a tree, return the best embedding in the form of the
-    final node at the end of the best embedding.
+Given the root `r` of a tree, return the best embedding in the form of the
+final node at the end of the best embedding.
 """
 function best_embedding(r::Root)
 
@@ -350,45 +350,47 @@ end
 """
     mcdts_embedding
 
-    ## Convenience / default option call
+## Convinient call / default set
 
-    mcdts_embedding(data::Dataset, N::Int=100; kwargs...)
+    mcdts_embedding(data::Dataset, N::Int=100; kwargs...) -> tree
 
-    Do the MCDTS embedding of the `data` with `N` trials according to the
-    PECUZAL algorithm [^Kraemer2021], returns the tree. Embedding parameters
-    like the Theiler window, considered delays and the function that chooses the
-    next embedding step are all estimated automatically or the default option is
-    used. `data` is a `DynamicalSystems.Dataset`.
+Make an MCDTS embedding of the `data` with `N` trials according to the
+PECUZAL algorithm [^Kraemer2021], returns the tree. Embedding parameters
+like the Theiler window, considered delays and the function that chooses the
+next embedding step are all estimated automatically or the default option is
+used. `data` is a `DynamicalSystems.Dataset`.
 
-    ## All options
+## All options
 
     mcdts_embedding(data::DynamicalSystems.Dataset, optimalg::AbstractMCDTSOptimGoal,
-                            w::Int, delays::AbstractRange{D}, N::Int=40;  kwargs...)
+                            w::Int, delays::AbstractRange{D}, N::Int=40;  kwargs...) -> tree
 
-    * `optimalg::AbstractMCDTSOptimGoal` determines how the embedding is performed in
-      each cycle. Specifically it sets the delay pre-selection statistic Λ, which
-      pre-selects the potential delays in each embedding cycle as well as the the
-      Loss-Statistic Γ, which determines the Loss to be minimized by MCDTS
-      [^Kraemer2022] (see [`MCDTSOptimGoal`](@ref)).
-    * `w::Int` is the Theiler window (neighbors in time with index `w` close to the point,
-      that are excluded from being true neighbors. `w=0` means to exclude only the
-      point itself, and no temporal neighbors. In case of multivariate time series
-      input choose `w` as the maximum of all `wᵢ's`. As a default in the convience
-      call this is estimated with a mutual information minimum method of DelayEmbeddings.jl
-    * `delays = 0:100`: The possible time lags
-    * `N::Int = 40`: The number of tree expansions
+## Arguments
+* `optimalg::AbstractMCDTSOptimGoal` determines how the embedding is performed in
+    each cycle. Specifically it sets the delay pre-selection statistic Λ, which
+    pre-selects the potential delays in each embedding cycle as well as the the
+    Loss-Statistic Γ, which determines the Loss to be minimized by MCDTS
+    [^Kraemer2022] (see [`MCDTSOptimGoal`](@ref)).
+* `w::Int` is the Theiler window (neighbors in time with index `w` close to the point,
+    that are excluded from being true neighbors. `w=0` means to exclude only the
+    point itself, and no temporal neighbors. In case of multivariate time series
+    input choose `w` as the maximum of all `wᵢ's`. As a default in the convience
+    call this is estimated with a mutual information minimum method of DelayEmbeddings.jl
+* `delays = 0:100`: The possible time lags
+* `N::Int = 40`: The number of tree expansions
 
-    ## Keyword Arguments
-    * `choose_func`: Function to choose next node in the tree with, default
-      choice: `(L)->(TreeEmbedding.softmaxL(L,β=2.))`
-    * `max_depth = 20`: Threshold, which determines the algorithm. It either breaks,
-      when it converges, i.e. when there is no way to reduce the cost-function any
-      further, or when this threshold is reached.
-    * `verbose`: Either `true` or `false` (default); prints status of embedding optimization.
-    * `metric`: norm for distance computation (default is `Euclidean()`)
+## Keyword Arguments
+* `choose_func`: Function to choose next node in the tree with, default
+    choice: `(L)->(TreeEmbedding.softmaxL(L,β=2.))`
+* `max_depth = 20`: Threshold, which determines the algorithm. It either breaks,
+    when it converges, i.e. when there is no way to reduce the cost-function any
+    further, or when this threshold is reached.
+* `verbose`: Either `true` or `false` (default); prints status of embedding optimization.
+* `metric`: norm for distance computation (default is `Euclidean()`)
 
-    [^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).
-    [^Kraemer2022]: Kraemer, K.H., Gelbrecht, M., Pavithran, I., Sujith, R. I. and Marwan, N. (2022). [Optimal state space reconstruction via Monte Carlo decision tree search. Nonlinear Dynamics](https://doi.org/10.1007/s11071-022-07280-2)
+## References
+[^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).
+[^Kraemer2022]: Kraemer, K.H., Gelbrecht, M., Pavithran, I., Sujith, R. I. and Marwan, N. (2022). [Optimal state space reconstruction via Monte Carlo decision tree search. Nonlinear Dynamics](https://doi.org/10.1007/s11071-022-07280-2).
 """
 function mcdts_embedding(data::Union{Dataset{D,T},Vector{T}}, optimalg::AbstractMCDTSOptimGoal, w::Int,
                             delays::AbstractRange, N::Int=40; verbose::Bool = false, kwargs...) where {D,T}
