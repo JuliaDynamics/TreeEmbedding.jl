@@ -47,7 +47,7 @@ TreeEmbeddding.jl provides much more than just a refinement to the PECUZAL algor
 
 The objective function $\Gamma$ quantifies the goodness of a reconstruction, given that
 delays $\tau_j$ have been estimated. The embedding process is thought of as an iterative process, starting with an unlagged (given) time series $s_{i_1}$, i.e., $\tau_1 = 0$. In each embedding
-cycle $D_d, [d=1,\ldots,m]$ a time series $s_{i_d}$ lagged by $\tau_d$, gets appended to obtain the actual reconstruction vectors $\vec{v}_d(t) \in \mathbb{R}^{d+1}$
+cycle $D_d, [d=1,\ldots,m]$ a time series $s_{i_d}$ lagged by $\tau_d$, gets appended to obtain the actual reconstruction vectors $\vec{v}_d(t) \in R^{d+1}$
 and these are compared to the reconstruction vectors $\vec{v}_{d-1}(t)$ of the former embedding cycle (if $d=1$, $\vec{v}_{d-1}(t)$ is simply the time series $s_{i_1}$).
 This comparison is usually achieved by the amount of false nearest neighbors (FNN), some other
 neighborhood-preserving-idea, or more ambitious ideas as the $L$ function from Uzal et. al.
