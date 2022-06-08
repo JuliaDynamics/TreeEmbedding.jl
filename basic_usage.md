@@ -37,7 +37,7 @@ This decision tree search is computionally relatively expensive, you should expe
 Embedding tree with current best embedding: L=-1.0529700545830651 - full embd. τ=[0, 8, 0] ,i_ts=[1, 2, 2]
 ```
 
-Thus in the cast we can reconstruct the full system from the first two components with the embedding vector $\vec{v}(t) = \bigl( s_{1}(t), s_{2}(t), s_{2}(t-8) \bigl)$$. 
+Thus in the cast we can reconstruct the full system from the first two components with the embedding vector $\vec{v}(t) = \bigl( s_{1}(t), s_{2}(t), s_{2}(t-8) \bigl)$. 
 
 ## Configuring the Embedding 
 
@@ -47,7 +47,7 @@ TreeEmbeddding.jl provides much more than just a refinement to the PECUZAL algor
 
 The objective function $\Gamma$ quantifies the goodness of a reconstruction, given that
 delays $\tau_j$ have been estimated. The embedding process is thought of as an iterative process, starting with an unlagged (given) time series $s_{i_1}$, i.e., $\tau_1 = 0$. In each embedding
-cycle $\mathcal{D}_d, [d=1,\ldots,m]$ a time series $s_{i_d}$ lagged by $\tau_d$, gets appended to obtain the actual reconstruction vectors $\vec{v}_d(t) \in \mathbb{R}^{d+1}$
+cycle $D_d, [d=1,\ldots,m]$ a time series $s_{i_d}$ lagged by $\tau_d$, gets appended to obtain the actual reconstruction vectors $\vec{v}_d(t) \in \mathbb{R}^{d+1}$
 and these are compared to the reconstruction vectors $\vec{v}_{d-1}(t)$ of the former embedding cycle (if $d=1$, $\vec{v}_{d-1}(t)$ is simply the time series $s_{i_1}$).
 This comparison is usually achieved by the amount of false nearest neighbors (FNN), some other
 neighborhood-preserving-idea, or more ambitious ideas as the $L$ function from Uzal et. al.
@@ -81,11 +81,11 @@ TreeEmbedding.jl predefines two delay preselection statistics:
 
 Further, one can modify how the decision tree is sampled and searched. 
 
-As we strive to find a global minimum of the objective function $\Gamma$ and cannot compute the full embedding tree, we proceed by sampling the tree. We randomly sample the full tree, for each embedding cycle we compute the change in the objective function $\Gamma$ and pick for the next embedding cycle preferably those delays that decrease $\Gamma$ further. Each node $\mathcal{N}_d$ of the tree encodes one possible embedding cycle and holds the time series used
-$[s_{i_1}, \ldots, s_{i_d}]$, the delays used until this node $[\tau_1, \ldots, \tau_{d}]$, i.e., the current path through the tree up to node $\mathcal{N}_d$, and a value
+As we strive to find a global minimum of the objective function $\Gamma$ and cannot compute the full embedding tree, we proceed by sampling the tree. We randomly sample the full tree, for each embedding cycle we compute the change in the objective function $\Gamma$ and pick for the next embedding cycle preferably those delays that decrease $\Gamma$ further. Each node $N_d$ of the tree encodes one possible embedding cycle and holds the time series used
+$[s_{i_1}, \ldots, s_{i_d}]$, the delays used until this node $[\tau_1, \ldots, \tau_{d}]$, i.e., the current path through the tree up to node $N_d$, and a value
 of the objective function $\Gamma_d$. We sample the tree $N$-times in total in a two-step procedure:
 
-* _Expand_: Starting from the root, for each embedding cycle $\mathcal{D}_d$, possible next steps $(s_{i_j},\tau_j,\Gamma_j)$ are either computed using suitable statistics $\Lambda_{\tau}$ and $\Gamma$ or, if there were already previously computed ones, they are looked up from the tree. We consider the first embedding cycle $\mathcal{D}_2$ and use the continuity statistic $\langle \varepsilon^\star \rangle(\tau)$ for $\Lambda_{\tau}$. Then, for each time series $s_{i}$ the corresponding local maxima of all $\langle \varepsilon^\star \rangle(\tau)$ that determines the set of possible delay values $\tau_2$ corresponding to $\mathcal{D}_2$). Then, one of the possible $\tau_2$'s is randomly chosen with probabilities computed with a softmax of the corresponding values of $\Gamma_j$. Due to its normalization, the softmax function is able to convert all possible values of $\Gamma_j$ to probabilities with $p_j=\exp(-\beta \Gamma_j)/\sum_k\exp(-\beta \Gamma_k)$. This procedure is repeated until the very last computed embedding cycle $\mathcal{D}_{m+1}$. This is, when the objective function $\Gamma_{m+1}$ cannot be further decreased for any of the $\tau_{m+1}$-candidates. 
+* _Expand_: Starting from the root, for each embedding cycle $D_d$, possible next steps $(s_{i_j},\tau_j,\Gamma_j)$ are either computed using suitable statistics $\Lambda_{\tau}$ and $\Gamma$ or, if there were already previously computed ones, they are looked up from the tree. We consider the first embedding cycle $D_2$ and use the continuity statistic $\langle \varepsilon^\star \rangle(\tau)$ for $\Lambda_{\tau}$. Then, for each time series $s_{i}$ the corresponding local maxima of all $\langle \varepsilon^\star \rangle(\tau)$ that determines the set of possible delay values $\tau_2$ corresponding to $D_2$). Then, one of the possible $\tau_2$'s is randomly chosen with probabilities computed with a softmax of the corresponding values of $\Gamma_j$. Due to its normalization, the softmax function is able to convert all possible values of $\Gamma_j$ to probabilities with $p_j=\exp(-\beta \Gamma_j)/\sum_k\exp(-\beta \Gamma_k)$. This procedure is repeated until the very last computed embedding cycle $D_{m+1}$. This is, when the objective function $\Gamma_{m+1}$ cannot be further decreased for any of the $\tau_{m+1}$-candidates. 
 * _Backpropagation_: After the tree is expanded, the final value $\Gamma_m$ is backpropagated through the taken path of this trial, i.e., to all leafs (previous embedding cycles $d$), that were visited during this expand, updating their $\Gamma_d$ values to that of the final embedding cycle.
 
 We can modify this tree search in TreeEmbedding.jl be setting different values for $\beta$ in the softmax function or by specifiying a completely different function that chooses the next embedding cycle. A large value for $\beta$ means that almost always the strict minimum of all $\Gamma_j$ is chosen, the tree is thus very "narrow", wheareas $\beta=0$ would mean to chose one delay uniformly random and a very "wide" tree search. 
