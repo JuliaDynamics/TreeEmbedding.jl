@@ -74,7 +74,21 @@ So far, `TreeEmbedding.jl` predefines four different objective functions:
 convergent cross mapping, from Sugihara et al.[^Sugihara2012]: [`CCM_ρ`](@ref)
 * A loss based on a prediction performed with the current reconstruction, see [`Prediction_error`](@ref)
 
+```@docs
+L_statistic
+FNN_statistic
+CCM_ρ
+Prediction_error
+```
+
 All of these can be directly initialized with their default parameters e.g. by `L_statistic()`, but also further adjusted. For that please see the reference of the individual objective functions. Further objective functions can be defined as subtypes of [`AbstractLoss`](@ref). Most importantly they must have a method [`compute_loss`](@ref) attached. 
+
+```@docs
+AbstractLoss
+compute_loss
+```
+
+
 
 ### Choosing the Delay Preselection Statistic 
 
@@ -91,6 +105,11 @@ So far `TreeEmbedding.jl` predefines two delay preselection statistics:
 
 * The continuity function `⟨ε★⟩` by Pecora et al.[^Pecora2007]: [`Continuity_function`](@ref), [`pecora`](@ref)
 * A given range of delays to consider, without a proper preselection: [`Range_function`](@ref)
+
+```@docs
+Continuity_function
+Range_function
+```
 
 ### Configuring the Tree Search 
 
@@ -131,20 +150,20 @@ There are some predefined optimziation goals:
 
 Next, we also have to specify the Theiler window (neighbors in time with index `w` close to the point, that are excluded from being true neighbors), e.g. with mutual information minimum method of `DelayEmbeddings.jl` by
 
-```julia 
+```julia
 w1 = DelayEmbeddings.estimate_delay(data[:,1],"mi_min")
 w2 = DelayEmbeddings.estimate_delay(data[:,2],"mi_min")
 w = maximum(hcat(w1,w2))
 ```
 
 Additionally, we set what delays are considered, e.g. all delays up to 100 and how many samples we want to compute during the tree search
-```julia 
+```julia
 delays = 0:100
 N = 50 
 ```
 
 Then, we can finally compute our embedding: 
-```julia 
+```julia
 tree = mcdts_embedding(data, optimgoal, w, delays, N)
 ```
 
