@@ -130,6 +130,7 @@ function pick_possible_embedding_params(Γ::AbstractLoss, Λ::AbstractDelayPrese
 
         # zero-padding of dps in order to also cover τ=0 (important for the multivariate case)
         L_trials, max_idx, temp = compute_loss(Γ, Λ, vec([0; dps[:,ts]]), Y_act, Ys, τs, w, ts, τ_vals, ts_vals; kwargs...)
+
         if isempty(max_idx)
             tt = max_idx
         else
