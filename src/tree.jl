@@ -387,6 +387,8 @@ used. `data` is a `DynamicalSystems.Dataset`.
     further, or when this threshold is reached.
 * `verbose`: Either `true` or `false` (default); prints status of embedding optimization.
 * `metric`: norm for distance computation (default is `Euclidean()`)
+* `regularization=nothing`: The next embedding cycle is only taken if it reduces the loss function
+     by at (regularization*Loss_previous), a reasonable value could be 1e-2 or 1e-3
 
 ## References
 [^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).

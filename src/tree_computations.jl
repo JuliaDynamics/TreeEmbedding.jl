@@ -42,7 +42,7 @@ describe the embedding up to the current embedding cycle.
 * See [`mcdts_embedding`](@ref) for a list of all keywords.
 """
 function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Dataset{D,T},Vector{T}},
-                τs, w::Int, τ_vals, ts_vals, L_old; kwargs...) where {D, T}
+                τs, w::Int, τ_vals, ts_vals, L_old; regularization=nothing, kwargs...) where {D, T}
 
     Ys = DelayEmbeddings.standardize(Dataset(Yss))
 
@@ -63,22 +63,27 @@ function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Datas
     end
 
     embedding_pars, is_converged = get_embedding_params_according_to_loss(optimalg.Γ,
-                                            embedding_pars, L_old)
+                                            embedding_pars, L_old; regularization=regularization)
 
     return embedding_pars, is_converged
 end
 
 """
-    get_embedding_params_according_to_loss(Γ::AbstractLoss, τ_pot, ts_popt, L_pot, L_old) -> embedding_par, is_converged
+    get_embedding_params_according_to_loss(Γ::AbstractLoss, τ_pot, ts_popt, L_pot, L_old; regularization) -> embedding_par, is_converged
 
 Helper function for [`get_potential_delays`](@ref). Computes the potential
 delay-, time series- and according Loss-values with respect to the actual loss
 in the current embedding cycle, all stored in an `embedding_pars`-object (see [`EmbeddingPars`](@ref)). 
 `is_converged` (`::Bool`) indicates whether the chosen Loss-function can be minimized further or not.
 """
-function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old)
+function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old; regularization=nothing)
     threshold = Γ.threshold
     L_pot = L.(embedding_pars)
+
+    if !(isnothing(regularization)) 
+        L_old -= regularization*L_old
+    end
+
     if (minimum(L_pot) ≥ L_old)
         return EmbeddingPars[], true
     elseif (minimum(L_pot) ≤ threshold)
