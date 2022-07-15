@@ -1,3 +1,5 @@
+import Base.show, Base.summary 
+
 """
     The MCDTS algorithm is implemented as a tree with different kind types encoding
     the leafs and the root of the tree. AbstractTreeElement is the abstract type of
@@ -66,8 +68,8 @@ temp(e::EmbeddingPars) = e.temp
 t(n::Nothing) = nothing
 L(n::Nothing) = nothing 
 temp(n::Nothing) = nothing
-Base.show(io::IO, e::EmbeddingPars) = string("τ=",τ(e),", t=",t(e),", L=",L(e))
-
+Base.show(io::IO, e::EmbeddingPars) = string("Embedding cycle with τ=",τ(e),", t=",t(e),", L=",L(e))
+Base.summary(io::IO, e::EmbeddingPars) = string("EmbeddingPars(τ=",τ(e),", t=",t(e),", L=",L(e),")")
 
 """
     mutable struct Node{T}
@@ -268,7 +270,7 @@ function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{
         # only if it was not already computed
         if isnothing(current_node.children)
             embedding_pars, converged = next_embedding(current_node, optimalg, data, w, delays; kwargs...)
-
+        
             if converged
                 break
             else

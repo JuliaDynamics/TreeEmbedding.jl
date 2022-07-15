@@ -62,8 +62,12 @@ function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Datas
         return EmbeddingPars[], flag
     end
 
+    if !(isnothing(regularization)) 
+        L_old -= regularization*L_old
+    end
+
     embedding_pars, is_converged = get_embedding_params_according_to_loss(optimalg.Γ,
-                                            embedding_pars, L_old; regularization=regularization)
+                                            embedding_pars, L_old)
 
     return embedding_pars, is_converged
 end
@@ -76,13 +80,9 @@ delay-, time series- and according Loss-values with respect to the actual loss
 in the current embedding cycle, all stored in an `embedding_pars`-object (see [`EmbeddingPars`](@ref)). 
 `is_converged` (`::Bool`) indicates whether the chosen Loss-function can be minimized further or not.
 """
-function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old; regularization=nothing)
+function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old)
     threshold = Γ.threshold
     L_pot = L.(embedding_pars)
-
-    if !(isnothing(regularization)) 
-        L_old -= regularization*L_old
-    end
 
     if (minimum(L_pot) ≥ L_old)
         return EmbeddingPars[], true
@@ -138,13 +138,13 @@ function pick_possible_embedding_params(Γ::AbstractLoss, Λ::AbstractDelayPrese
                 tt = [tt]
             end
         end
+
         for i_trial ∈ 1:length(L_trials) 
             embedding_par = EmbeddingPars(τ=tt[i_trial], t=ts, L=L_trials[i_trial], temp=temp)
             Base.push!(embedding_pars, embedding_par)
+           
         end
-  
     end
- 
     return embedding_pars
 end
 
