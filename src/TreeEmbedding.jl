@@ -14,6 +14,7 @@ include("./Cost functions/CCM.jl")
 include("./Cost functions/FNN_statistic.jl")
 include("./Cost functions/L_statistic.jl")
 include("./Cost functions/Prediction_error.jl")
+include("./Cost functions/RegularizedCost.jl")
 include("tree_computations.jl")
 include("utils.jl")
 
