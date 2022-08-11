@@ -9,7 +9,7 @@ struct RegularizedCost{T,S} <: AbstractLoss
     regularization::S
 end 
 
-init_embedding_params(Γ::RegularizedCost, N::Int) = init_embedding_params(Γ.cost_functions, N)
+init_embedding_params(Γ::RegularizedCost, N::Int) = init_embedding_params(Γ.cost_function, N)
 
 function compute_loss(Γ::RegularizedCost, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
 
