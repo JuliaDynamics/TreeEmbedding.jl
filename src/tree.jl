@@ -274,7 +274,7 @@ function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{
             else
                 # spawn children
                 children = Node[]
-                for j = 1:length(embedding_pars)
+                for j in 1:length(embedding_pars)
                     push!(children, embedding_pars[j], optimalg.Γ, current_node)
                 end
                 current_node.children = children
@@ -344,6 +344,48 @@ function best_embedding(r::Root)
     end
     return current_node
 end
+
+"""
+    postprocess_tree!(r::Root, func) 
+
+Performs a Breadth-first traverse of the complete tree and updates the L value of each node with `func(L_old, depth_of_the_node)`
+"""
+function postprocess_tree!(r::Root, func) 
+    # BFS search 
+    old_nodes  = [r]
+    depth = 0 
+    not_finished = true
+
+    while not_finished 
+        
+        depth += 1
+
+        # get all nodes at this level 
+        nodes = []
+        for old_node ∈ old_nodes 
+            children = old_node.children 
+            if !(isnothing(children))
+                push!(nodes, children...)
+            end 
+        end 
+        
+        # stop if there none 
+        if isempty(nodes)
+            not_finished = false 
+        end 
+       
+        # update all nodes 
+        for node ∈ nodes 
+            update_L!(node, func(L(node), depth))
+        end 
+
+        # setup next iteration 
+        old_nodes = nodes 
+    end 
+end 
+
+
+
 
 ## Export function
 

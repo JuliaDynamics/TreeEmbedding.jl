@@ -13,8 +13,17 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
     pecuzal = TreeEmbedding.PecuzalOptim()
     tree = mcdts_embedding(data[:,1], pecuzal, w1, delays, runs)
     best_node = TreeEmbedding.best_embedding(tree)
+
     @test best_node.τs == [0, 9, 42, 20]
     @test -0.94 < L(best_node) < -0.929
+
+    # test postprocess_tree! 
+    tree_copy = deepcopy(tree)
+    func = (L,depth) -> L + depth*0.1*L 
+    TreeEmbedding.postprocess_tree!(tree, func)
+
+    @test TreeEmbedding.get_children_Ls(tree_copy) .* 1.1 ≈ TreeEmbedding.get_children_Ls(tree) 
+    @test TreeEmbedding.get_children_Ls(tree_copy.children[1]) .* 1.2 ≈ TreeEmbedding.get_children_Ls(tree.children[1]) 
 
     # L with tws
     Random.seed!(1234)
