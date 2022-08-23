@@ -16,7 +16,7 @@ function compute_loss(Γ::RegularizedCost, Λ::AbstractDelayPreselection, dps::V
     L, max_idx, temp = compute_loss(Γ.cost_function, Λ, dps, Y_act, Ys, τs, w, ts, τ_vals; metric=metric, kwargs...)
     
     depth = length(τ_vals) # Hauke: is this correct, is this the depth of the tree at that point?
-    regularize_L!(L, depth, regularization)
+    regularize_L!(L, depth, Γ.regularization)
 
     return L, max_idx, temp 
 end 
