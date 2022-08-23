@@ -47,11 +47,7 @@ function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Datas
     Ys = DelayEmbeddings.standardize(Dataset(Yss))
 
     # compute actual embedding trajectory Y_act
-    if typeof(optimalg.Γ) == Prediction_error
-        Y_act = genembed(Ys, τ_vals .* (-1), ts_vals) # ensure causality for forecasts
-    else
-        Y_act = genembed(Ys, τ_vals, ts_vals)
-    end
+    Y_act = embedding_trajectory(optimalg.Γ, Ys, τ_vals, ts_vals)
 
     # compute potential delay values with corresponding time series values and
     # Loss-values
@@ -69,6 +65,13 @@ function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Datas
 end
 
 """
+    embedding_trajectory(Γ::AbstractLoss, Y, τ_vals, ts_vals)
+
+Compute actual embedding trajectory with `DelayEmbeddings.genembed`
+"""
+embedding_trajectory(Γ::AbstractLoss, Ys, τ_vals, ts_vals) = genembed(Ys, τ_vals, ts_vals)
+
+"""
     get_embedding_params_according_to_loss(Γ::AbstractLoss, τ_pot, ts_popt, L_pot, L_old) -> embedding_par, is_converged
 
 Helper function for [`get_potential_delays`](@ref). Computes the potential
@@ -77,11 +80,12 @@ in the current embedding cycle, all stored in an `embedding_pars`-object (see [`
 `is_converged` (`::Bool`) indicates whether the chosen Loss-function can be minimized further or not.
 """
 function get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old)
-    threshold = Γ.threshold
+    T = threshold(Γ)
     L_pot = L.(embedding_pars)
+
     if (minimum(L_pot) ≥ L_old)
         return EmbeddingPars[], true
-    elseif (minimum(L_pot) ≤ threshold)
+    elseif (minimum(L_pot) ≤ T)
         ind = L_pot .< L_old
         return embedding_pars[ind], true
     else
@@ -133,11 +137,10 @@ function pick_possible_embedding_params(Γ::AbstractLoss, Λ::AbstractDelayPrese
                 tt = [tt]
             end
         end
-        for i_trial ∈ 1:length(L_trials) 
+        for i_trial in eachindex(L_trials)
             embedding_par = EmbeddingPars(τ=tt[i_trial], t=ts, L=L_trials[i_trial], temp=temp)
             Base.push!(embedding_pars, embedding_par)
         end
-  
     end
  
     return embedding_pars

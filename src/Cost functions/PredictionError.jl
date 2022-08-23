@@ -11,9 +11,9 @@ abstract type AbstractPredictionMethod end
 abstract type AbstractLocalPredictionMethod{T} <: AbstractPredictionMethod end
 
 """
-    Prediction_error <: AbstractLoss
+    PredictionError <: AbstractLoss
 
-Constructor for the Prediction_error loss function.
+Constructor for the PredictionError loss function.
 
 ## Fieldnames
 * `PredictionType::MCDTSpredictionType`: Determines the prediction type by
@@ -32,21 +32,21 @@ Constructor for the Prediction_error loss function.
     prediction error. By default only the out-of-sample error will be used (i.e. equal 
     weights [1 1]). Since the out-of-sample prediction error is generally larger than 
     the insample prediction error it may make sense to tune these wheight-parameters.
-    For specifying the prediction horizon see [`local_model`](@ref)  
+    For specifying the prediction horizon see [`LocalModel`](@ref)  
 
 ## Defaults
-* When calling `Prediction_error()`, a Prediction_error-object is created,
+* When calling `PredictionError()`, a PredictionError-object is created,
     which uses the threshold 0, i.e. no threshold, a zeroth-order predictor
     (see [`MCDTSpredictionType`](@ref), [`PredictionLoss`](@ref) &
-    [`local_model`](@ref)) and a full phase space sample (samplesize=1).
+    [`LocalModel`](@ref)) and a full phase space sample (samplesize=1).
 """
-struct Prediction_error <: AbstractLoss
+struct PredictionError <: AbstractLoss
     PredictionType::AbstractMCDTSpredictionType
     threshold::AbstractFloat
     samplesize::Real
     error_weights::Vector{Real}
     # Constraints and Defaults
-    Prediction_error(x ,y=0, z=1, zz=[1.;1.]) = begin
+    PredictionError(x ,y=0, z=1, zz=[1.;1.]) = begin
         @assert y ≥ 0 "A positive threshold for the prediciton loss must be chosen."
         @assert 0 < z ≤ 1. "The samplesize must be in the interval (0 1]."
         @assert length(zz) == 2 && 0 <= zz[1] ≤ 1 && 0 <= zz[2] ≤ 1 "The errorweights 
@@ -56,7 +56,7 @@ struct Prediction_error <: AbstractLoss
     end
 
 end
-Prediction_error() = Prediction_error(MCDTSpredictionType())
+PredictionError() = PredictionError(MCDTSpredictionType())
 
 """
     MCDTSpredictionType <: AbstractMCDTSpredictionType
@@ -67,11 +67,11 @@ Constructor, which determines the way how predictions are made technically.
 * `loss::AbstractPredictionLoss`: Indicates the way of computing the prediction error.
     See [`PredictionLoss`](@ref) for information on how to construct this object.
 * `method::AbstractPredictionMethod`: The method based on the state space reconstruction,
-    which makes the actual prediction. See [`local_model`](@ref).
+    which makes the actual prediction. See [`LocalModel`](@ref).
 
 ## Default settings
 * When calling `MCDTSpredictionType()` a MCDTSpredictionType-object is constructed
-    with a `local_zeroth`-predictor [`local_model`](@ref), using 2 nearest neighbors
+    with a `local_zeroth`-predictor [`LocalModel`](@ref), using 2 nearest neighbors
     and a 1-step-ahead-prediction. The loss-function is the root mean squared prediction
     error over all components [`PredictionLoss`](@ref).
 """
@@ -80,8 +80,8 @@ struct MCDTSpredictionType <: AbstractMCDTSpredictionType
     method::AbstractPredictionMethod
     # Constraints and Defaults
     MCDTSpredictionType(x,y) = new(x,y)
-    MCDTSpredictionType(x) = new(x,local_model())
-    MCDTSpredictionType() = new(PredictionLoss(), local_model())
+    MCDTSpredictionType(x) = new(x,LocalModel())
+    MCDTSpredictionType() = new(PredictionLoss(), LocalModel())
 end
 
 
@@ -119,7 +119,7 @@ end
 
 
 """
-    local_model <: AbstractLocalPredictionMethod
+    LocalModel <: AbstractLocalPredictionMethod
 
 Constructor, which indicates the local state space prediction model.
 
@@ -133,17 +133,17 @@ Constructor, which indicates the local state space prediction model.
 * `trials::Int` : The number of different out-of-sample prediction trials.
 
 ## Defaults
-* When calling `local_model()` a local_model-object is constructed with a zeroth
+* When calling `LocalModel()` a LocalModel-object is constructed with a zeroth
     order prediction scheme, 2 nearest neighbors, a 1-step-ahead in-sample prediction, 
     a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
-* When calling `local_model(method)` a local_model-object is constructed with a
+* When calling `LocalModel(method)` a LocalModel-object is constructed with a
     `method`-prediction scheme, 2 nearest neighbors, a 1-step-ahead in-sample prediction, 
     a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
-* When calling `local_model(method,KNN)` a local_model-object is constructed with a
+* When calling `LocalModel(method,KNN)` a LocalModel-object is constructed with a
     `method`-prediction scheme, `KNN` nearest neighbors, a 1-step-ahead in-sample prediction, 
     a 10-step-ahead out-of-sample prediction and 20 out-of-sample trials.
 """
-struct local_model{m} <: AbstractLocalPredictionMethod{m}
+struct LocalModel{m} <: AbstractLocalPredictionMethod{m}
     method::String
     KNN::Int
     Tw_out::Int
@@ -151,7 +151,7 @@ struct local_model{m} <: AbstractLocalPredictionMethod{m}
     trials::Int
     
     # Constraints and Defaults
-    local_model(x="zeroth", y=2, z=10, zz=1, zzz=20) = begin
+    LocalModel(x="zeroth", y=2, z=10, zz=1, zzz=20) = begin
         @assert x in ["zeroth", "linear"]
         @assert y > 0
         @assert z > 0
@@ -168,9 +168,16 @@ end
 ## Functions:
 
 """
+    embedding_trajectory(Γ::AbstractLoss, Y, τ_vals, ts_vals)
+
+Compute actual embedding trajectory with `DelayEmbeddings.genembed`, respects the causailty for the prediction
+"""
+embedding_trajectory(Γ::PredictionError, Ys, τ_vals, ts_vals) = genembed(Ys, τ_vals .* (-1), ts_vals)
+
+"""
     Return the loss based on a `Tw`-step-ahead local-prediction.
 """
-function compute_loss(Γ::Prediction_error, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
+function compute_loss(Γ::PredictionError, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
 
     PredictionLoss = Γ.PredictionType.loss
     PredictionMethod = Γ.PredictionType.method
@@ -216,7 +223,7 @@ end
             K::Int = 3, w::Int = 1, Tw::Int = 1, metric = Euclidean()) → prediction
 
 Compute an in-sample - not iterated - `Tw`-time-steps-ahead prediction of the trajectory `Y::Dataset` ([`Dataset`](@ref)), 
-using the prediction method `pred_meth` [`local_model`](@ref).
+using the prediction method `pred_meth` [`LocalModel`](@ref).
 
 ## Keyword arguments
 * `K`: Nearest Neighbours
@@ -321,7 +328,7 @@ end
             K::Int = 3, w::Int = 1, Tw::Int = 1, metric = Euclidean()) → average_cost
 
 Compute an out-of-sample `Tw`-time-steps-ahead prediction of the data `Y::Dataset` ([`Dataset`](@ref)) using
-the prediction method `pred_meth` [`local_model`](@ref).
+the prediction method `pred_meth` [`LocalModel`](@ref).
 
 ## Keyword arguments
 * `K`: Nearest Neighbours
