@@ -268,13 +268,13 @@ function expand!(n::Root, optimalg::AbstractMCDTSOptimGoal, data::Union{Dataset{
         # only if it was not already computed
         if isnothing(current_node.children)
             embedding_pars, converged = next_embedding(current_node, optimalg, data, w, delays; kwargs...)
-
+          
             if converged
                 break
             else
                 # spawn children
                 children = Node[]
-                for j = 1:length(embedding_pars)
+                for j in eachindex(embedding_pars) 
                     push!(children, embedding_pars[j], optimalg.Γ, current_node)
                 end
                 current_node.children = children

@@ -15,9 +15,20 @@ abstract type AbstractDelayPreselection end
 """
     AbstractLoss
 
-Supertype of all proposed loss/cost functions. A Loss type has to have a [`compute_loss`](@ref) function. Additionally, one can define [`init_embedding_params`](@ref), [`TreeEmbedding.push!`](@ref), [`get_embedding_params_according_to_loss`](@ref). For examples see the source code of the already implemented [`L_statistic`](@ref), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and [`Prediction_error`](@ref).
+Supertype of all proposed loss/cost functions. A Loss type has to have a [`compute_loss`](@ref) function. Additionally, one can define [`init_embedding_params`](@ref), [`TreeEmbedding.push!`](@ref), [`get_embedding_params_according_to_loss`](@ref). For examples see the source code of the already implemented [`L_statistic`](@ref), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and [`PredictionError`](@ref).
+
+All subtypes need to define a function to return a `threshold` for the tolerable `ΔL` decrease for the current
+embedding. When `ΔL` exceeds this threshold in an embedding cycle the embedding stops. Note that `ΔL` is a negative value therefore `threshold` must be a small negative number. Per default, the field `treshold` is returned
 """
 abstract type AbstractLoss end
+
+"""
+  threshold(L::AbstractLoss)
+
+  Returns a `threshold` for the tolerable `ΔL` decrease for the current
+  embedding. When `ΔL` exceeds this threshold in an embedding cycle the embedding stops. Note that `ΔL` is a negative value therefore `threshold` must be a small negative number. Per default, the field `treshold` is returned
+"""
+threshold(L::AbstractLoss) = L.threshold 
 
 """
     MCDTSOptimGoal <: AbstractMCDTSOptimGoal
@@ -28,7 +39,7 @@ pre-selection statistic `Λ` MCDTS uses.
 ## Fieldnames
 * `Γ::AbstractLoss`: Chosen loss-function, see the so far available
   [`L_statistic`](@ref) (see also [`uzal_cost`](@ref)), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and
-  [`Prediction_error`](@ref).
+  [`PredictionError`](@ref).
 * `Λ::AbstractDelayPreselection`: Chosen delay Pre-selection method, see the so
   far available [`Continuity_function`](@ref) and [`Range_function`](@ref).
 
