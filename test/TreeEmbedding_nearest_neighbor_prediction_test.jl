@@ -20,7 +20,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     KNN = 3 # nearest neighbors for pred method
     samplesize = 1
 
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
     @test Y_trial[1] == [-10.261485829931198, -8.23625170009478, -6.5709009676592265]
@@ -44,21 +44,21 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     @test costs_insample ≈ 0.014020691329639021
 
     KNN = 7
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
     @test prediction_insample[1] ≈ [-10.475824990237367, -7.862249129934621, -6.34814615223535]
     @test prediction_insample[100] ≈ [-9.082393020151338, -6.278012992500267, -7.379658787516312]
 
     Tw_in = 4
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
     @test prediction_insample[1] ≈ [ -9.917781189190842, -6.834366360783968, -6.81994342218101]
     @test prediction_insample[100] ≈ [-7.705390632465702, -6.222726841729036, -8.624366124067231]
 
     Tw_in = 1
-    PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("linear", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
     @test prediction_insample[1] ≈ [-10.250767157116556, -7.8655765196596015, -6.619399745711982]
@@ -66,7 +66,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
 
     Tw_in = 3
     KNN = 3
-    PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("linear", KNN, Tw_out, Tw_in)
     prediction_insample, ns, temp = TreeEmbedding.insample_prediction(PredMeth, Y_trial; samplesize, w)
 
     @test prediction_insample[1] ≈ [ -9.959820444468269, -7.227110425809523, -6.887937241321643]
@@ -80,7 +80,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     samplesize = 1
     trialss = 1
 
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in, trialss)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in, trialss)
     PredictionLoss = TreeEmbedding.PredictionLoss(1)
 
     Random.seed!(123)
@@ -105,7 +105,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     samplesize = 1
     trialss = 5
 
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in, trialss)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in, trialss)
     PredictionLoss = TreeEmbedding.PredictionLoss(1)
 
     Random.seed!(123)
@@ -113,7 +113,7 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
 
     @test costs_out_of_sample ≈ 0.5421776166018837
 
-    PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in, trialss)
+    PredMeth = TreeEmbedding.LocalModel("linear", KNN, Tw_out, Tw_in, trialss)
     PredictionLoss = TreeEmbedding.PredictionLoss(1)
 
     Random.seed!(123)
@@ -134,10 +134,10 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     error_weight_insample = 1
     error_weight_oosample = 0 
 
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in)
     PredLoss = TreeEmbedding.PredictionLoss(1)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Range_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.PredictionError(PredType, 0, 1,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Range_function())
 
     tree = mcdts_embedding(x1, optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
@@ -155,10 +155,10 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     error_weight_insample = 0.5
     error_weight_oosample = 0.5
 
-    PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("linear", KNN, Tw_out, Tw_in)
     PredLoss = TreeEmbedding.PredictionLoss(2)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Range_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.PredictionError(PredType, 0, 1,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Range_function())
 
     tree = mcdts_embedding(x1, optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
@@ -175,10 +175,10 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     Tw_in = 1 # insample prediction horizon
     choose_func = (L)->(TreeEmbedding.minL(L))
 
-    PredMeth = TreeEmbedding.local_model("linear", KNN, Tw_out, Tw_in, num_trials)
+    PredMeth = TreeEmbedding.LocalModel("linear", KNN, Tw_out, Tw_in, num_trials)
     PredLoss = TreeEmbedding.PredictionLoss(4)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType, 0, 1), TreeEmbedding.Continuity_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.PredictionError(PredType, 0, 1), TreeEmbedding.Continuity_function())
 
     tree = mcdts_embedding(x1, optmodel, w1, delays, runs; max_depth, choose_func)
     best_node = TreeEmbedding.best_embedding(tree)
@@ -198,10 +198,10 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     error_weight_oosample = 0
     samplesize = 0.5
 
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in)
     PredLoss = TreeEmbedding.PredictionLoss(1)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Continuity_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.PredictionError(PredType,0,samplesize,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Continuity_function())
 
     tree = mcdts_embedding(data_sample, optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
@@ -222,10 +222,10 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     error_weight_insample = 1
     error_weight_oosample = 1
 
-    PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in)
+    PredMeth = TreeEmbedding.LocalModel("zeroth", KNN, Tw_out, Tw_in)
     PredLoss = TreeEmbedding.PredictionLoss(2)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,1,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Continuity_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.PredictionError(PredType,0,1,[error_weight_insample; error_weight_oosample]), TreeEmbedding.Continuity_function())
 
     tree = mcdts_embedding(x1, optmodel, w1, delays, runs; max_depth)
     best_node = TreeEmbedding.best_embedding(tree)
