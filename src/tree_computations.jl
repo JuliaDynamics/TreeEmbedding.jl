@@ -51,7 +51,7 @@ function get_potential_delays(optimalg::AbstractMCDTSOptimGoal, Yss::Union{Datas
 
     # compute potential delay values with corresponding time series values and
     # Loss-values
-    embedding_pars = embedding_cycle(optimalg, Y_act, Ys, τs, w, τ_vals, ts_vals; kwargs...)
+    embedding_pars = embedding_cycle(optimalg, Y_act, Ys, τs, w, τ_vals, ts_vals, L_old; kwargs...)
 
     if isempty(embedding_pars)
         flag = true
@@ -105,13 +105,13 @@ the corresponding Loss-statistic-values, `L_pot` for each peak, i.e. for each
 `embedding_params` object (see [`EmbeddingPars`](@ref)).
 """
 function embedding_cycle(optimalg::AbstractMCDTSOptimGoal, Y_act, Ys, τs,
-                                                    w, τ_vals, ts_vals; kwargs...)
+                                                    w, τ_vals, ts_vals, L_old; kwargs...)
 
     # Compute Delay-pre-selection method according to `optimalg.Λ`
     delay_pre_selection_statistic = get_delay_statistic(optimalg.Λ, Ys, τs, w, τ_vals, ts_vals; kwargs... )
 
     # update τ_vals, ts_vals, Ls, ε★s
-    embedding_params = pick_possible_embedding_params(optimalg.Γ, optimalg.Λ, delay_pre_selection_statistic, Y_act, Ys, τs, w, τ_vals, ts_vals; kwargs...)
+    embedding_params = pick_possible_embedding_params(optimalg.Γ, optimalg.Λ, delay_pre_selection_statistic, Y_act, Ys, τs, w, τ_vals, ts_vals, L_old; kwargs...)
 
     return embedding_params
 end
@@ -121,14 +121,14 @@ end
     Compute all possible τ-values (and according time series numbers) and their
     corresponding Loss-statistics for the input delay_pre_selection_statistic `dps`.
 """
-function pick_possible_embedding_params(Γ::AbstractLoss, Λ::AbstractDelayPreselection, dps, Y_act::Dataset{D, T}, Ys, τs, w::Int, τ_vals, ts_vals; kwargs...) where {D, T}
+function pick_possible_embedding_params(Γ::AbstractLoss, Λ::AbstractDelayPreselection, dps, Y_act::Dataset{D, T}, Ys, τs, w::Int, τ_vals, ts_vals, L_old; kwargs...) where {D, T}
 
     embedding_pars = EmbeddingPars[]
     for ts = 1:size(Ys,2)
         # compute loss and its corresponding index w.r.t `delay_pre_selection_statistic`
 
         # zero-padding of dps in order to also cover τ=0 (important for the multivariate case)
-        L_trials, max_idx, temp = compute_loss(Γ, Λ, vec([0; dps[:,ts]]), Y_act, Ys, τs, w, ts, τ_vals, ts_vals; kwargs...)
+        L_trials, max_idx, temp = compute_loss(Γ, Λ, vec([0; dps[:,ts]]), Y_act, Ys, τs, w, ts, τ_vals, ts_vals; L_old = L_old, kwargs...)
         if isempty(max_idx)
             tt = max_idx
         else
