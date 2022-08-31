@@ -3,7 +3,7 @@
 ## Constructors:
 
 """
-    FNN_statistic <: AbstractLoss
+    FNNStatistic <: AbstractLoss
 
 Constructor for the FNN-statistic loss function (false nearest neighbor) based
 on Hegger & Kantz [^Hegger1999].
@@ -17,20 +17,20 @@ on Hegger & Kantz [^Hegger1999].
     to be considered in the computation of the L-statistic(s).
 
 ## Defaults
-* When calling `FNN_statistic()`, a FNN_statistic-object is created, which uses no
+* When calling `FNNStatistic()`, a FNNStatistic-object is created, which uses no
     threshold and uses the FNN-inter threshold `r=2`.
-* When calling `FNN_statistic(threshold)`, a FNN_statistic-object is created, which uses
+* When calling `FNNStatistic(threshold)`, a FNNStatistic-object is created, which uses
     the given `threshold` and uses the FNN-inter threshold `r=2`.
 
 ## References
 [^Hegger1999]: Hegger & Kantz, [Improved false nearest neighbor method to detect determinism in time series data. Physical Review E 60, 4970](https://doi.org/10.1103/PhysRevE.60.4970).
 """
-struct FNN_statistic <: AbstractLoss
+struct FNNStatistic <: AbstractLoss
     threshold::AbstractFloat
     r::AbstractFloat
     samplesize::Real
     # Constraints and Defaults
-    FNN_statistic(x=0.,y=2.,z=1.) = begin
+    FNNStatistic(x=0.,y=2.,z=1.) = begin
         @assert x >= 0 "Threshold for FNN-statistic must be ≥ 0"
         @assert y > 0 "FNN-distance-expansion threshold must be >0"
         @assert 0 < z ≤ 1. "The samplesize must be in the interval (0 1]."
@@ -43,14 +43,14 @@ end
 
 ## Functions:
 
-function init_embedding_params(Γ::FNN_statistic, N::Int)
+function init_embedding_params(Γ::FNNStatistic, N::Int)
     return [EmbeddingPars(τ=0, t=1, L=1f0)]
 end
 
 """
     Return the loss based on the FNN-statistic `FNN` and indices `max_idx`  for all local maxima in dps
 """
-function compute_loss(Γ::FNN_statistic, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
+function compute_loss(Γ::FNNStatistic, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
 
     r = Γ.r
     s = Ys[:,ts]

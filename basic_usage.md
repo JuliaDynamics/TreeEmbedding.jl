@@ -68,20 +68,20 @@ This comparison is made through the objective function and, thus, related to the
 
 So far, `TreeEmbedding.jl` predefines four different objective functions: 
 
-* The $L$ statistic from Uzal et al.[^Uzal2011]: [`L_statistic`](@ref)
-* The False Nearest Neighbor (FNN) statistic based on Hegger & Kantz[^Hegger1999]: [`FNN_statistic`](@ref)
+* The $L$ statistic from Uzal et al.[^Uzal2011]: [`LStatistic`](@ref)
+* The False Nearest Neighbor (FNN) statistic based on Hegger & Kantz[^Hegger1999]: [`FNNStatistic`](@ref)
 * A loss function based on the correlation coefficient of the
 convergent cross mapping, from Sugihara et al.[^Sugihara2012]: [`CCM_ρ`](@ref)
 * A loss based on a prediction performed with the current reconstruction, see [`PredictionError`](@ref)
 
 ```@docs
-L_statistic
-FNN_statistic
+LStatistic
+FNNStatistic
 CCM_ρ
 PredictionError
 ```
 
-All of these can be directly initialized with their default parameters e.g. by `L_statistic()`, but also further adjusted. For that please see the reference of the individual objective functions. Further objective functions can be defined as subtypes of [`AbstractLoss`](@ref). Most importantly they must have a method [`compute_loss`](@ref) attached. 
+All of these can be directly initialized with their default parameters e.g. by `LStatistic()`, but also further adjusted. For that please see the reference of the individual objective functions. Further objective functions can be defined as subtypes of [`AbstractLoss`](@ref). Most importantly they must have a method [`compute_loss`](@ref) attached. 
 
 ```@docs
 AbstractLoss
@@ -138,7 +138,7 @@ This is the key constructor for using [`mcdts_embedding`](@ref). For example, wh
 and the *continuity statistic* (delay pre-selection statistic $\Lambda_{\tau}$) via:
 
 ```julia
-optimgoal = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.L_statistic(),TreeEmbedding.Continuity_function())
+optimgoal = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(),TreeEmbedding.Continuity_function())
 ```
 
 There are some predefined optimziation goals: 

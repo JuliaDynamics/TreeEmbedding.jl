@@ -4,7 +4,7 @@ import Base.push!
 ## Constructors:
 
 """
-    L_statistic <: AbstractLoss
+    LStatistic <: AbstractLoss
 
 Constructor for the L-statistic loss function based on Uzal et al.[^Uzal2011]. Here
 we consider the decrease of the L-statistic `ΔL` in between embedding cycles,
@@ -24,24 +24,24 @@ according to Kraemer et al.[^Kraemer2021] ([`pecuzal_embedding`](@ref)).
   to be considered in the computation of the L-statistic(s).
 
 ## Defaults
-* When calling `L_statistic()`, a L_statistic-object is created, which uses no
+* When calling `LStatistic()`, a LStatistic-object is created, which uses no
   threshold and consideres 3 nearest neighbors for time horizons `tws=2:100`.
-* When calling `L_statistic(threshold)`, a L_statistic-object is created, which uses
+* When calling `LStatistic(threshold)`, a LStatistic-object is created, which uses
   the given `threshold` and consideres 3 nearest neighbors for time horizons `tws=2:100`.
-* When calling `L_statistic(threshold,KNN)`, a L_statistic-object is created, which uses
+* When calling `LStatistic(threshold,KNN)`, a LStatistic-object is created, which uses
   the given `threshold`, consideres `KNN` nearest neighbors for time horizons `tws=2:100`.
 
 ## References
 [^Kraemer2021]: Kraemer, K.H., Datseris, G., Kurths, J., Kiss, I.Z., Ocampo-Espindola, Marwan, N. (2021). [A unified and automated approach to attractor reconstruction. New Journal of Physics 23(3), 033017](https://iopscience.iop.org/article/10.1088/1367-2630/abe336).
 [^Uzal2011]: Uzal, L. C., Grinblat, G. L., Verdes, P. F. (2011). [Optimal reconstruction of dynamical systems: A noise amplification approach. Physical Review E 84, 016223](https://doi.org/10.1103/PhysRevE.84.016223).
 """
-struct L_statistic <: AbstractLoss
+struct LStatistic <: AbstractLoss
     threshold::AbstractFloat
     KNN::Int
     tws::AbstractRange{Int}
     samplesize::Real
     # Constraints and Defaults
-    L_statistic(x=0,y=3,z=2:100,s=1.) = begin
+    LStatistic(x=0,y=3,z=2:100,s=1.) = begin
         @assert x <= 0 "Please provide a (small) negative number for the threshold of ΔL."
         @assert y > 0 "Number of considered nearest neighbors must be positive."
         @assert z[1] == 2 "The considered range for the time horizon of the L-function must start at 2."
@@ -53,11 +53,11 @@ end
 
 ## Functions:
 
-function init_embedding_params(Γ::L_statistic, N::Int)
+function init_embedding_params(Γ::LStatistic, N::Int)
   return [EmbeddingPars(τ=0, t=1, L=0f0)]
 end
 
-function get_embedding_params_according_to_loss(Γ::L_statistic, embedding_pars::Vector{EmbeddingPars}, L_old)
+function get_embedding_params_according_to_loss(Γ::LStatistic, embedding_pars::Vector{EmbeddingPars}, L_old)
     threshold = Γ.threshold
     L_pot = L.(embedding_pars)
     if minimum(L_pot) > threshold
@@ -68,7 +68,7 @@ function get_embedding_params_according_to_loss(Γ::L_statistic, embedding_pars:
     end
 end
 
-function Base.push!(children::Array{Node,1}, n::EmbeddingPars, Γ::L_statistic, current_node::AbstractTreeElement)
+function Base.push!(children::Array{Node,1}, n::EmbeddingPars, Γ::LStatistic, current_node::AbstractTreeElement)
   Base.push!(children, Node(EmbeddingPars(τ=τ(n),t=t(n),L=(L(current_node)+L(n)), temp=temp(n)), [get_τs(current_node); τ(n)], [get_ts(current_node); t(n)], nothing))
 end 
 
@@ -76,7 +76,7 @@ end
     Return the loss based on the maximum decrease of the L-statistic `L_decrease` and corresponding
     delay-indices `max_idx` for all local maxima in ε★
 """
-function compute_loss(Γ::L_statistic, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
+function compute_loss(Γ::LStatistic, Λ::AbstractDelayPreselection, dps::Vector{P}, Y_act::Dataset{D, T}, Ys, τs, w::Int, ts::Int, τ_vals, ts_vals; metric=Euclidean(), kwargs...) where {P, D, T}
 
     KNN = Γ.KNN
     tws = Γ.tws

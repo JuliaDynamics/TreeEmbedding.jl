@@ -15,7 +15,7 @@ abstract type AbstractDelayPreselection end
 """
     AbstractLoss
 
-Supertype of all proposed loss/cost functions. A Loss type has to have a [`compute_loss`](@ref) function. Additionally, one can define [`init_embedding_params`](@ref), [`TreeEmbedding.push!`](@ref), [`get_embedding_params_according_to_loss`](@ref). For examples see the source code of the already implemented [`L_statistic`](@ref), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and [`PredictionError`](@ref).
+Supertype of all proposed loss/cost functions. A Loss type has to have a [`compute_loss`](@ref) function. Additionally, one can define [`init_embedding_params`](@ref), [`TreeEmbedding.push!`](@ref), [`get_embedding_params_according_to_loss`](@ref). For examples see the source code of the already implemented [`LStatistic`](@ref), [`FNNStatistic`](@ref), [`CCM_ρ`](@ref) and [`PredictionError`](@ref).
 
 All subtypes need to define a function to return a `threshold` for the tolerable `ΔL` decrease for the current
 embedding. When `ΔL` exceeds this threshold in an embedding cycle the embedding stops. Note that `ΔL` is a negative value therefore `threshold` must be a small negative number. Per default, the field `treshold` is returned
@@ -38,14 +38,14 @@ pre-selection statistic `Λ` MCDTS uses.
 
 ## Fieldnames
 * `Γ::AbstractLoss`: Chosen loss-function, see the so far available
-  [`L_statistic`](@ref) (see also [`uzal_cost`](@ref)), [`FNN_statistic`](@ref), [`CCM_ρ`](@ref) and
+  [`LStatistic`](@ref) (see also [`uzal_cost`](@ref)), [`FNNStatistic`](@ref), [`CCM_ρ`](@ref) and
   [`PredictionError`](@ref).
 * `Λ::AbstractDelayPreselection`: Chosen delay Pre-selection method, see the so
   far available [`Continuity_function`](@ref) and [`Range_function`](@ref).
 
 ## Defaults
 * When calling `MCDTSOptimGoal()`, a optimization goal struct is created, which
-  uses the [`L_statistic`](@ref) as a loss function `Γ` and the [`Continuity_function`](@ref)
+  uses the [`LStatistic`](@ref) as a loss function `Γ` and the [`Continuity_function`](@ref)
   as a delay Pre-selection method Λ.
 """
 struct MCDTSOptimGoal <: AbstractMCDTSOptimGoal
@@ -56,11 +56,11 @@ end
 
 ## Some Defaults for the MCDTSOptimGoal-struct:
 
-# PECUZAL (Continuity statistic + L_statistic)
-PecuzalOptim() = MCDTSOptimGoal(L_statistic(), Continuity_function())
+# PECUZAL (Continuity statistic + LStatistic)
+PecuzalOptim() = MCDTSOptimGoal(LStatistic(), Continuity_function())
 MCDTSOptimGoal() = PecuzalOptim() # alias
 # Continuity & FNN-statistic
-FNNOptim() = MCDTSOptimGoal(FNN_statistic(), Continuity_function())
+FNNOptim() = MCDTSOptimGoal(FNNStatistic(), Continuity_function())
 # For CCM-causality analysis
 CCMOptim() = MCDTSOptimGoal(CCM_ρ(), Range_function())
 # For prediction with zeroth order predictor and continuity statistic for delay preselection
