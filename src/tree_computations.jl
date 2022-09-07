@@ -72,7 +72,7 @@ Compute actual embedding trajectory with `DelayEmbeddings.genembed`
 embedding_trajectory(Γ::AbstractLoss, Ys, τ_vals, ts_vals) = genembed(Ys, τ_vals, ts_vals)
 
 """
-    get_embedding_params_according_to_loss(Γ::AbstractLoss, τ_pot, ts_popt, L_pot, L_old) -> embedding_par, is_converged
+    get_embedding_params_according_to_loss(Γ::AbstractLoss, embedding_pars::Vector{EmbeddingPars}, L_old) -> embedding_par, is_converged
 
 Helper function for [`get_potential_delays`](@ref). Computes the potential
 delay-, time series- and according Loss-values with respect to the actual loss
