@@ -46,7 +46,7 @@ RQA_tde = rqa(R_tde; theiler = theiler, lmin = lmin)
 RQA_tde = hcat(RQA_tde...)
 ```
 
-Finally, we compute our TreeEmbedding. As an optimziation goal we set it up to minimize the [`FNNStatistic`](@ref) and we use the [`Continuity_function`](@ref) to pre-select possible delay values. If you want to get some quick results, reduce `trials` e.g. to `5`. For `trials=50` as given here, the embedding will need some time to compute. 
+Finally, we compute our TreeEmbedding. As an optimziation goal we set it up to minimize the [`FNNStatistic`](@ref) and we use the [`ContinuityFunction`](@ref) to pre-select possible delay values. If you want to get some quick results, reduce `trials` e.g. to `5`. For `trials=50` as given here, the embedding will need some time to compute. 
 
 ```julia
 # TreeEmbedding RQA

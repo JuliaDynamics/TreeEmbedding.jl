@@ -27,7 +27,7 @@ println("\nTesting TreeEmbedding CCM on univariate Logistic map data:")
     trials = 20 # the sampling of the tree
 
     Random.seed!(1234)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test2), TreeEmbedding.Range_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test2), TreeEmbedding.RangeFunction())
     tree = mcdts_embedding(Dataset(test1), optmodel, w1, taus1, trials)
     best_node = TreeEmbedding.best_embedding(tree)
     τ_mcdts = best_node.τs
@@ -36,7 +36,7 @@ println("\nTesting TreeEmbedding CCM on univariate Logistic map data:")
 
     # less fid points
     Random.seed!(1234)
-    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test2,1,0.5), TreeEmbedding.Range_function())
+    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test2,1,0.5), TreeEmbedding.RangeFunction())
     tree2 = mcdts_embedding(Dataset(test1), optmodel2, w1, taus1, trials)
     best_node2 = TreeEmbedding.best_embedding(tree2)
     τ_mcdts2 = best_node2.τs
@@ -49,7 +49,7 @@ println("\nTesting TreeEmbedding CCM on univariate Logistic map data:")
     @test sort(τ_mcdts) == sort(τ_mcdts2) == [0, 1, 2]
 
     Random.seed!(1234)
-    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test1), TreeEmbedding.Range_function())
+    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.CCM_ρ(test1), TreeEmbedding.RangeFunction())
     tree2 = mcdts_embedding(Dataset(test2), optmodel2, w2, taus1, trials)
     best_node = TreeEmbedding.best_embedding(tree2)
     τ_mcdts = best_node.τs

@@ -19,7 +19,7 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
     # L with tws
     Random.seed!(1234)
     tws = 2:4:delays[end]
-    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(0,3,tws), TreeEmbedding.Continuity_function())
+    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(0,3,tws), TreeEmbedding.ContinuityFunction())
     tree2 = mcdts_embedding(data[:,1], optmodel2, w1, delays, runs)
     best_node2 = TreeEmbedding.best_embedding(tree2)
     @test best_node2.τs == best_node.τs
@@ -29,7 +29,7 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
     Random.seed!(1234)
     tws = 2:2:delays[end]
     samplesize = 0.5
-    optmodel3 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(0,3,tws,samplesize), TreeEmbedding.Continuity_function())
+    optmodel3 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(0,3,tws,samplesize), TreeEmbedding.ContinuityFunction())
     tree3 = mcdts_embedding(data[:,1], optmodel3, w1, delays, runs)
     best_node3 = TreeEmbedding.best_embedding(tree3)
     @test best_node3.τs == best_node.τs
@@ -37,7 +37,7 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
 
     # L with tws and threshold
     Random.seed!(1234)
-    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(-0.5,3,tws), TreeEmbedding.Continuity_function())
+    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(-0.5,3,tws), TreeEmbedding.ContinuityFunction())
     tree4 = mcdts_embedding(data[:,1], optmodel4, w1, delays, runs)
     best_node4 = TreeEmbedding.best_embedding(tree4)
     @test length(best_node4.τs) < length(best_node2.τs)
@@ -46,14 +46,14 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
 
     # FNN with threshold
     Random.seed!(1234)
-    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05), TreeEmbedding.Continuity_function())
+    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05), TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4, w1, delays, runs)
     best_node = TreeEmbedding.best_embedding(tree)
     @test best_node.τs == [0, 27, 21, 6]
 
     # FNN with threshold and less fid-points
     Random.seed!(1234)
-    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05,2,0.8), TreeEmbedding.Continuity_function())
+    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05,2,0.8), TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4, w1, delays, runs)
     best_node_less = TreeEmbedding.best_embedding(tree)
     @test best_node_less.τs == [0, 27, 21, 6]
@@ -70,12 +70,12 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz multivariate")
 
     Random.seed!(1234)
     tws = 2:4:delays[end]
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(-0.05,3,tws), TreeEmbedding.Continuity_function())
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(-0.05,3,tws), TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data, optmodel, w, delays, runs2)
     best_node = TreeEmbedding.best_embedding(tree)
     
     Random.seed!(1234)
-    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05), TreeEmbedding.Continuity_function())
+    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05), TreeEmbedding.ContinuityFunction())
     tree2 = mcdts_embedding(data, optmodel2, w, delays, runs2)
     best_node2 = TreeEmbedding.best_embedding(tree2)
     L_YY = TreeEmbedding.compute_delta_L(Dataset(data), best_node2.τs, best_node2.ts, delays[end];  w = w, tws = 2:4:delays[end])
@@ -89,7 +89,7 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz multivariate")
     
     # less fid points
     Random.seed!(1234)
-    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05,2,0.2), TreeEmbedding.Continuity_function())
+    optmodel2 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05,2,0.2), TreeEmbedding.ContinuityFunction())
     tree3 = mcdts_embedding(data, optmodel2, w, delays, runs2)
     best_node3 = TreeEmbedding.best_embedding(tree3)
     

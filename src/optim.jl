@@ -8,7 +8,7 @@ abstract type AbstractMCDTSOptimGoal end
 """
     AbstractDelayPreselection
 
-Supertype of all proposed structs that preselect potential delay values. A DelayPreSelection type has to have a [`get_max_idx`](@ref) and [`get_delay_statistic`](@ref) function attached to it. For examples see the source code of the already implemented [`Continuity_function`](@ref) and [`Range_function`](@ref)
+Supertype of all proposed structs that preselect potential delay values. A DelayPreSelection type has to have a [`get_max_idx`](@ref) and [`get_delay_statistic`](@ref) function attached to it. For examples see the source code of the already implemented [`ContinuityFunction`](@ref) and [`RangeFunction`](@ref)
 """
 abstract type AbstractDelayPreselection end
 
@@ -41,11 +41,11 @@ pre-selection statistic `Λ` MCDTS uses.
   [`LStatistic`](@ref) (see also [`uzal_cost`](@ref)), [`FNNStatistic`](@ref), [`CCM_ρ`](@ref) and
   [`PredictionError`](@ref).
 * `Λ::AbstractDelayPreselection`: Chosen delay Pre-selection method, see the so
-  far available [`Continuity_function`](@ref) and [`Range_function`](@ref).
+  far available [`ContinuityFunction`](@ref) and [`RangeFunction`](@ref).
 
 ## Defaults
 * When calling `MCDTSOptimGoal()`, a optimization goal struct is created, which
-  uses the [`LStatistic`](@ref) as a loss function `Γ` and the [`Continuity_function`](@ref)
+  uses the [`LStatistic`](@ref) as a loss function `Γ` and the [`ContinuityFunction`](@ref)
   as a delay Pre-selection method Λ.
 """
 struct MCDTSOptimGoal <: AbstractMCDTSOptimGoal
@@ -57,11 +57,11 @@ end
 ## Some Defaults for the MCDTSOptimGoal-struct:
 
 # PECUZAL (Continuity statistic + LStatistic)
-PecuzalOptim() = MCDTSOptimGoal(LStatistic(), Continuity_function())
+PecuzalOptim() = MCDTSOptimGoal(LStatistic(), ContinuityFunction())
 MCDTSOptimGoal() = PecuzalOptim() # alias
 # Continuity & FNN-statistic
-FNNOptim() = MCDTSOptimGoal(FNNStatistic(), Continuity_function())
+FNNOptim() = MCDTSOptimGoal(FNNStatistic(), ContinuityFunction())
 # For CCM-causality analysis
-CCMOptim() = MCDTSOptimGoal(CCM_ρ(), Range_function())
+CCMOptim() = MCDTSOptimGoal(CCM_ρ(), RangeFunction())
 # For prediction with zeroth order predictor and continuity statistic for delay preselection
-PredictOptim() = MCDTSOptimGoal(CCM_ρ(), Continuity_function())
+PredictOptim() = MCDTSOptimGoal(CCM_ρ(), ContinuityFunction())

@@ -7,7 +7,7 @@
 
 ## Constructors for DelayPreSelection Functions
 """
-    Continuity_function <: AbstractDelayPreselection
+    ContinuityFunction <: AbstractDelayPreselection
 
 Constructor for the continuity function `⟨ε★⟩` by Pecora et al.[^Pecora2007],
 see [`pecora`](@ref).
@@ -23,20 +23,20 @@ see [`pecora`](@ref).
     computation of the continuity statistic ⟨ε★⟩.
 
 ## Defaults
-* When calling `Continuity_function()` a Continuity_function-object is constructed
+* When calling `ContinuityFunction()` a ContinuityFunction-object is constructed
     with `K=13`, `samplesize=1.`, `α=0.05` and `p=0.5`.
 
 ## References
 [^Pecora2007]: Pecora, L. M., Moniz, L., Nichols, J., & Carroll, T. L. (2007). [A unified approach to attractor reconstruction. Chaos 17(1)](https://doi.org/10.1063/1.2430294).
 
 """
-struct Continuity_function <: AbstractDelayPreselection
+struct ContinuityFunction <: AbstractDelayPreselection
     K::Int
     samplesize::Real
     α::Real
     p::Real
     # Constraints and Defaults
-    Continuity_function(k=13,x=1.,y=0.05,z=0.5) = begin
+    ContinuityFunction(k=13,x=1.,y=0.05,z=0.5) = begin
         @assert k > 7 "At least 8 nearest neighbors must be in the δ-ball, in order to gurantee a valid statistic."
         @assert 0. < x ≤ 1. "Please select a valid `samplesize`, which denotes a fraction of considered fiducial points, i.e. `samplesize` ∈ (0 1]"
         @assert 1. > y > 0.
@@ -46,7 +46,7 @@ struct Continuity_function <: AbstractDelayPreselection
 end
 
 """
-    Range_function <: AbstractDelayPreselection
+    RangeFunction <: AbstractDelayPreselection
 
 Constructor for a range of possible delay values. In this case there is
 actually no "pre-selection" of delay, but rather all possible delays, given
@@ -54,7 +54,7 @@ in the input `τs` (see, [`mcdts_embedding`](@ref)) are considered. This can sig
 computation time. There are no fieldnames, simply construct by typing
 `RangeFunction()`.
 """
-struct Range_function <: AbstractDelayPreselection end
+struct RangeFunction <: AbstractDelayPreselection end
 
 
 # Functions:
@@ -65,16 +65,16 @@ struct Range_function <: AbstractDelayPreselection end
 Compute the candidate delay values from the given delay pre-selection statistic
 `dps` with respect to `Λ`, which determined how `dps` was obtained and how
 to select the candidates (e.g. pick the maxima of `dps` in case of the
-`Λ` being the Continuity function). See [`Continuity_function`](@ref) and
-[`Range_function`](@ref).
+`Λ` being the Continuity function). See [`ContinuityFunction`](@ref) and
+[`RangeFunction`](@ref).
 """
-function get_max_idx(Λ::Range_function, dps::Vector{T}, τ_vals, ts_vals, ts) where {T}
+function get_max_idx(Λ::RangeFunction, dps::Vector{T}, τ_vals, ts_vals, ts) where {T}
     max_idx = Vector(dps[2:end].+1)
     ts_idx = findall(e->e==ts, ts_vals) # do not consider already taken delays
     filter!(e->e∉(τ_vals[ts_idx] .+ 2), max_idx) # do not consider already taken delays
     return max_idx
 end
-function get_max_idx(Λ::Continuity_function, dps::Vector{T}, τ_vals, ts_vals, ts) where {T}
+function get_max_idx(Λ::ContinuityFunction, dps::Vector{T}, τ_vals, ts_vals, ts) where {T}
     _, max_idx = get_maxima(dps) # determine local maxima in delay_pre_selection_statistic
     ts_idx = findall(e->e==ts, ts_vals) # do not consider already taken delays
     filter!(e->e∉(τ_vals[ts_idx] .+ 2), max_idx) # do not consider already taken delays
@@ -89,13 +89,13 @@ end
 
 Compute the delay statistic according to the chosen method in `optimalg.Λ` (see [`MCDTSOptimGoal`](@ref))
 """
-function get_delay_statistic(Λ::Continuity_function, Ys, τs, w, τ_vals, ts_vals; metric = Euclidean(), kwargs... )
+function get_delay_statistic(Λ::ContinuityFunction, Ys, τs, w, τ_vals, ts_vals; metric = Euclidean(), kwargs... )
 
     ε★, _ = DelayEmbeddings.pecora(Ys, Tuple(τ_vals), Tuple(ts_vals); delays = τs, w = w,
             samplesize = Λ.samplesize, K = Λ.K, metric = metric, α = Λ.α,
             p = Λ.p)
     return ε★
 end
-function get_delay_statistic(Λ::Range_function, Ys, τs, w, τ_vals, ts_vals; kwargs... )
+function get_delay_statistic(Λ::RangeFunction, Ys, τs, w, τ_vals, ts_vals; kwargs... )
     return repeat(Vector(1:length(τs)), outer = [1,size(Ys,2)])
 end

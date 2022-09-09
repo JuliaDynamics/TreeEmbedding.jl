@@ -69,7 +69,7 @@ begin
     PredMeth = TreeEmbedding.local_model("zeroth", KNN, Tw_out, Tw_in, trials2)
     PredLoss = TreeEmbedding.PredictionLoss(4)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize), TreeEmbedding.Continuity_function(13,samplesize))
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize), TreeEmbedding.ContinuityFunction(13,samplesize))
 end
 @time tree = mcdts_embedding(Dataset(x1), optmodel, w1, taus, trials; max_depth = max_depth, choose_func = (L->(TreeEmbedding.softmaxL(L,β=1.))), verbose=true)
 best_node = TreeEmbedding.best_embedding(tree)
@@ -91,7 +91,7 @@ begin
     PredMeth = TreeEmbedding.local_model("linear", KNN, Tw, 1, trials2)
     PredLoss = TreeEmbedding.PredictionLoss(4)
     PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize), TreeEmbedding.Continuity_function(13,samplesize))
+    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.Prediction_error(PredType,0,samplesize), TreeEmbedding.ContinuityFunction(13,samplesize))
 end
 @time tree = mcdts_embedding(Dataset(x1), optmodel, w1, taus, trials; max_depth = max_depth, verbose=true)
 best_node = TreeEmbedding.best_embedding(tree)

@@ -103,12 +103,12 @@ some of which include non-uniform delays and the extension to multivariate input
 
 So far `TreeEmbedding.jl` predefines two delay preselection statistics:
 
-* The continuity function `⟨ε★⟩` by Pecora et al.[^Pecora2007]: [`Continuity_function`](@ref), [`pecora`](@ref)
-* A given range of delays to consider, without a proper preselection: [`Range_function`](@ref)
+* The continuity function `⟨ε★⟩` by Pecora et al.[^Pecora2007]: [`ContinuityFunction`](@ref), [`pecora`](@ref)
+* A given range of delays to consider, without a proper preselection: [`RangeFunction`](@ref)
 
 ```@docs
-Continuity_function
-Range_function
+ContinuityFunction
+RangeFunction
 ```
 
 ### Configuring the Tree Search 
@@ -138,7 +138,7 @@ This is the key constructor for using [`mcdts_embedding`](@ref). For example, wh
 and the *continuity statistic* (delay pre-selection statistic $\Lambda_{\tau}$) via:
 
 ```julia
-optimgoal = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(),TreeEmbedding.Continuity_function())
+optimgoal = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.LStatistic(),TreeEmbedding.ContinuityFunction())
 ```
 
 There are some predefined optimziation goals: 
