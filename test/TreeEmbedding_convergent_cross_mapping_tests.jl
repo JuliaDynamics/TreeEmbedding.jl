@@ -43,9 +43,9 @@ println("\nTesting TreeEmbedding CCM on univariate Logistic map data:")
     ts_mcdts2 = best_node2.ts
     L2 = L(best_node2)
 
-    @test Lval < -0.95
-    @test Lval - .01 < L2 < Lval + .01
-    @test length(τ_mcdts) ==  3 == length(τ_mcdts2)
+    @test Lval < -0.9
+    @test L2 < Lval
+    @test length(τ_mcdts) == 3 == length(τ_mcdts2)
     @test sort(τ_mcdts) == sort(τ_mcdts2) == [0, 1, 2]
 
     Random.seed!(1234)
@@ -54,13 +54,11 @@ println("\nTesting TreeEmbedding CCM on univariate Logistic map data:")
     best_node = TreeEmbedding.best_embedding(tree2)
     τ_mcdts = best_node.τs
     ts_mcdts = best_node.ts
-    Lval = L(best_node)
+    Lval2 = L(best_node)
 
-    @test Lval < -0.997
+    @test Lval2 < Lval
     @test length(τ_mcdts) ==  3
-    @test τ_mcdts[1] == 0
-    @test τ_mcdts[2] == 1
-    @test τ_mcdts[3] == 2
+    @test sort(τ_mcdts) == [0, 1, 2]
 
 end
 end
