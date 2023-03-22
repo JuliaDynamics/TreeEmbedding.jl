@@ -1,4 +1,4 @@
-## xx-xx-2022 - v1.0.0
+## xx-xx-2023 - v1.0.0
 
 First release of TreeEmbedding.jl
 
@@ -9,3 +9,4 @@ First release of TreeEmbedding.jl
     - L-Statistic
     - Convergent Cross Mapping (CCM) correlation coefficient
     - Prediction error
+* Regularization **TODO**
