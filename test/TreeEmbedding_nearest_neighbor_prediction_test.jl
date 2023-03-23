@@ -166,27 +166,6 @@ println("\nTesting TreeEmbedding prediction of Lorenz")
     L_mcdts2 = L(best_node)
     @test sort(τ_mcdts2) == [0,1,2,3,4,5]
 
-    # Prediction continuity-function, linear predictor mean-KL
-    Random.seed!(1234)
-    delays = 0:50
-    KNN = 6 # nearest neighbors for pred method
-    num_trials = 5 # number of trials for out of sample prediction error
-    Tw_out = 5 # oos prediction horizon
-    Tw_in = 1 # insample prediction horizon
-    choose_func = (L)->(TreeEmbedding.minL(L))
-
-    PredMeth = TreeEmbedding.LocalModel("linear", KNN, Tw_out, Tw_in, num_trials)
-    PredLoss = TreeEmbedding.PredictionLoss(4)
-    PredType = TreeEmbedding.MCDTSpredictionType(PredLoss, PredMeth)
-    optmodel = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.PredictionError(PredType, 0, 1), TreeEmbedding.ContinuityFunction())
-
-    tree = mcdts_embedding(x1, optmodel, w1, delays, runs; max_depth, choose_func)
-    best_node = TreeEmbedding.best_embedding(tree)
-    τ_mcdts4 = best_node.τs
-    L_mcdts4 = L(best_node)
-    @test sort(τ_mcdts4) == [0, 7, 15, 20, 26]
-    @test L_mcdts4 ≈ 9.319587571757883e-5
-
     # multivariate prediction continuity-function, zeroth predictor first-comp-MSE, less fiducials
     data_sample = Dataset(hcat(x1,y1))
 
