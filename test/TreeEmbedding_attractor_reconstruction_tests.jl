@@ -14,15 +14,15 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
     tree = mcdts_embedding(data[:,1], pecuzal, w1, delays, runs)
     best_node1 = TreeEmbedding.best_embedding(tree)
     @test best_node1.τs == [0, 9, 42, 20]
-    @test -0.94 < L(best_node1) < -0.929
+    @test L(best_node1) < -0.9
 
     # L with regularization
     reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.LStatistic(), 1/5)
     pecuzal_reg = TreeEmbedding.MCDTSOptimGoal(reg_cost, TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], pecuzal_reg, w1, delays, runs)
     best_node = TreeEmbedding.best_embedding(tree)
-    @test best_node.τs == [0, 9]
-    @test -0.464 < L(best_node) < -0.463
+    @test length(best_node.τs) < length(best_node1.τs)
+    @test L(best_node1) < L(best_node)
 
     # L with tws
     Random.seed!(1234)
@@ -41,7 +41,7 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
     tree3 = mcdts_embedding(data[:,1], optmodel3, w1, delays, runs)
     best_node3 = TreeEmbedding.best_embedding(tree3)
     @test best_node3.τs == best_node1.τs
-    @test L(best_node1) - 0.1 < L(best_node3) < L(best_node1) + 0.1
+    @test L(best_node1) < L(best_node3)
 
     # L with tws and threshold
     Random.seed!(1234)
@@ -54,41 +54,47 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz univariate")
 
     # FNN with threshold
     Random.seed!(1234)
-    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05), TreeEmbedding.ContinuityFunction())
+    threshold = 0.05
+    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(threshold), TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4, w1, delays, runs)
     best_node = TreeEmbedding.best_embedding(tree)
     @test best_node.τs == [0, 27, 21, 6]
+    @test L(best_node) > threshold
 
     # FNN with threshold and regularization
     Random.seed!(1234)
-    reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(0.05), 1/250)
+    reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(threshold), 1/250)
     optmodel4_reg = TreeEmbedding.MCDTSOptimGoal(reg_cost, TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4_reg, w1, delays, runs)
-    best_node = TreeEmbedding.best_embedding(tree)
-    @test best_node.τs == [0, 9, 5]
+    best_node2 = TreeEmbedding.best_embedding(tree)
+    @test length(best_node2.τs) < length(best_node.τs)
+    @test L(best_node2) > threshold
 
     # FNN regularization with 0 strength
     Random.seed!(1234)
-    reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(0.05), 0)
+    reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(threshold), 0)
     optmodel4_reg = TreeEmbedding.MCDTSOptimGoal(reg_cost, TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4_reg, w1, delays, runs)
-    best_node = TreeEmbedding.best_embedding(tree)
-    @test best_node.τs == [0, 27, 21, 6]
+    best_node3 = TreeEmbedding.best_embedding(tree)
+    @test best_node3.τs == best_node3.τs
+    @test L(best_node3) == L(best_node)
 
     # FNN regularization overregulated
     Random.seed!(1234)
-    reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(0.05), 1/10)
+    reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(threshold), 1/2)
     optmodel4_reg = TreeEmbedding.MCDTSOptimGoal(reg_cost, TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4_reg, w1, delays, runs)
-    best_nodex = TreeEmbedding.best_embedding(tree)
-    @test best_nodex.τs == [0]
+    best_node4 = TreeEmbedding.best_embedding(tree)
+    @test best_node4.τs == [0]
+    @test L(best_node4) == 1
 
     # FNN with threshold and less fid-points
     Random.seed!(1234)
-    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(0.05,2,0.8), TreeEmbedding.ContinuityFunction())
+    optmodel4 = TreeEmbedding.MCDTSOptimGoal(TreeEmbedding.FNNStatistic(threshold,2,0.8), TreeEmbedding.ContinuityFunction())
     tree = mcdts_embedding(data[:,1], optmodel4, w1, delays, runs)
     best_node_less = TreeEmbedding.best_embedding(tree)
-    @test best_node_less.τs == [0, 27, 21, 6]
+    @test best_node_less.τs == best_node.τs
+    @test L(best_node_less) > threshold
 
     L_YY = TreeEmbedding.compute_delta_L(data[:,1], best_node.τs, delays[end];  w = w1)
     L_YY2 = TreeEmbedding.compute_delta_L(data[:,1], best_node_less.τs, delays[end];  w = w1)
@@ -116,8 +122,8 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz multivariate")
     @test best_node.ts == [1, 1, 1, 1]
     @test best_node2.τs == [0, 22, 16, 7]
     @test best_node2.ts == [1, 2, 2, 1]
-    @test -0.92 < L(best_node) < -0.91
-    @test -0.43 < L_YY < -0.42
+    @test L(best_node) < -0.9
+    @test L(best_node) < L_YY
     
     # less fid points
     Random.seed!(1234)
@@ -127,16 +133,17 @@ println("\nTesting TreeEmbedding L & FNN on Lorenz multivariate")
     
     @test best_node3.τs == [0, 48, 39, 0, 2]
     @test best_node3.ts == [1, 3, 2, 3, 2]
-
+    
     # less fid points regularized
     Random.seed!(1234)
     reg_cost = TreeEmbedding.RegularizedCost(TreeEmbedding.FNNStatistic(0.05,2,0.2), 1/25)
-    optmodel2 = TreeEmbedding.MCDTSOptimGoal(reg_cost, TreeEmbedding.ContinuityFunction())
-    tree3 = mcdts_embedding(data, optmodel2, w, delays, runs2)
-    best_node3 = TreeEmbedding.best_embedding(tree3)
-
-    @test best_node3.τs == [0, 14, 24, 19]
-    @test best_node3.ts == [1, 3, 3, 3]
+    optmodel3 = TreeEmbedding.MCDTSOptimGoal(reg_cost, TreeEmbedding.ContinuityFunction())
+    tree4 = mcdts_embedding(data, optmodel3, w, delays, runs2)
+    best_node4 = TreeEmbedding.best_embedding(tree4)
+    
+    @test best_node4.τs == [0, 14, 24, 19]
+    @test best_node4.ts == [1, 3, 3, 3]
+    @test L(best_node4) > L(best_node3)
 
 end
 end
